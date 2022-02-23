@@ -20,7 +20,7 @@ class VT_AE_Detector(nn.Module):
                            heads=8,
                            mlp_dim=1024,
                            train=True)
-        self.gmm = mdn1.MDN(input_dim=512, out_dim=512, layer_size=512, coefs=150, test=False, sd=0.5)
+        self.gmm = mdn1.MDN(input_dim=512, out_dim=512, layer_size=512, coefs=150)
         self.lambda_mse = 5.
         self.lambda_ssim = 0.5
         self.ssim_loss_func = pytorch_ssim.SSIM(window_size=11, size_average=True)  # SSIM Loss

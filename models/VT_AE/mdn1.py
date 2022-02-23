@@ -14,7 +14,7 @@ import torch.nn.functional as F
 
 class MDN(nn.Module):
 
-    def __init__(self, input_dim=512, out_dim=512, layer_size=512, coefs=10, test=False, sd=0.5):
+    def __init__(self, input_dim=512, out_dim=512, layer_size=512, coefs=10):
         super(MDN, self).__init__()
         self.in_features = input_dim
 
@@ -23,8 +23,6 @@ class MDN(nn.Module):
         self.sigma_sq = nn.Linear(layer_size, out_dim * coefs, bias=False)  # isotropic independent variance
         self.out_dim = out_dim
         self.coefs = coefs
-        self.test = test
-        self.sd = sd
 
     def forward(self, x):
         ep = np.finfo(float).eps
