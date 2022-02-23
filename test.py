@@ -3,11 +3,8 @@
 @author: Pankaj Mishra
 """
 
-import torch
 import mvtech
 import torch.nn.functional as F
-import os
-import numpy as np
 import pytorch_ssim
 from einops import rearrange
 from sklearn.metrics import roc_auc_score
@@ -15,7 +12,7 @@ from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import precision_recall_curve
 import mdn1
 from VT_AE import VT_AE as ae
-from utility_fun import *
+from utils.utility_fun import *
 
 prdt = "cable"
 patch_size = 64

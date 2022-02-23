@@ -4,17 +4,16 @@
 """
 
 import torch
-import mvtech
+from utils import mvtech
 import torchvision.utils as utils
-import matplotlib.pyplot as plt
 from torch.optim import Adam
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 import os
 import numpy as np
 import pytorch_ssim
-import mdn1
-from VT_AE import VT_AE as ae
+from models.VT_AE import mdn1
+from models.VT_AE.VT_AE import VT_AE as ae
 import argparse
 
 ## Argparse declaration ##

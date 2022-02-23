@@ -11,14 +11,10 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
-COEFS = 10
-IN_DIM = 512
-OUT_DIM = IN_DIM
-
 
 class MDN(nn.Module):
 
-    def __init__(self, input_dim=IN_DIM, out_dim=OUT_DIM, layer_size=IN_DIM, coefs=COEFS, test=False, sd=0.5):
+    def __init__(self, input_dim=512, out_dim=512, layer_size=512, coefs=10, test=False, sd=0.5):
         super(MDN, self).__init__()
         self.in_features = input_dim
 
@@ -118,20 +114,16 @@ def add_noise(latent, noise_type="gaussian", sd=0.2):
     """
     assert sd >= 0.0
     if noise_type == "gaussian":
-        mean = 0.
-
-        n = torch.distributions.Normal(torch.tensor([mean]), torch.tensor([sd]))
-        noise = n.sample(latent.size()).squeeze(2).cuda()
+        noise = torch.randn_like(latent) * sd
         latent = latent + noise
         return latent
 
     if noise_type == "speckle":
-        noise = torch.randn(latent.size()).cuda()
+        noise = torch.randn_like(latent)
         latent = latent + latent * noise
         return latent
 
 
 if __name__ == "__main__":
     model = MDN()
-    model = model.cuda()
     print(model)

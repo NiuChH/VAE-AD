@@ -5,14 +5,12 @@
 
 import torch
 import torch.nn as nn
-from student_transformer import ViT
-import model_res18 as M
-from einops import rearrange
-import spatial as S
 
+from models.VT_AE.mdn1 import add_noise
+from models.VT_AE.student_transformer import ViT
+import models.VT_AE.model_res18 as M
+import models.VT_AE.spatial as S
 
-#### NETWORK DECLARATION ####
-# torch.autograd.set_detect_anomaly(True) # this is to check any problem in the network by backtracking
 
 class VT_AE(nn.Module):
     def __init__(self, image_size=512,
@@ -37,7 +35,7 @@ class VT_AE(nn.Module):
         self.decoder = M.decoder2(8)
         # self.G_estimate= mdn1.MDN() # Trained in modular fashion
         self.Digcap = S.DigitCaps(in_num_caps=((image_size // patch_size) ** 2) * 8 * 8, in_dim_caps=8)
-        self.mask = torch.ones(1, image_size // patch_size, image_size // patch_size).bool().cuda()
+        self.mask = torch.ones(1, image_size // patch_size, image_size // patch_size).bool()
         self.Train = train
 
         if self.Train:
@@ -70,39 +68,9 @@ def initialize_weights(*models):
                 module.bias.data.zero_()
 
 
-##### Adding Noise ############
-
-def add_noise(latent, noise_type="gaussian", sd=0.2):
-    """Here we add noise to the latent features concatenated from the 4 autoencoders.
-    Arguements:
-    'gaussian' (string): Gaussian-distributed additive noise.
-    'speckle' (string) : Multiplicative noise using out = image + n*image, where n is uniform noise with specified mean & variance.
-    'sd' (integer) : standard deviation used for geenrating noise
-
-    Input :
-        latent : numpy array or cuda tensor.
-
-    Output:
-        Array: Noise added input, can be np array or cuda tnesor.
-    """
-    assert sd >= 0.0
-    if noise_type == "gaussian":
-        mean = 0.
-
-        n = torch.distributions.Normal(torch.tensor([mean]), torch.tensor([sd]))
-        noise = n.sample(latent.size()).squeeze(-1).cuda()
-        latent = latent + noise
-        return latent
-
-    if noise_type == "speckle":
-        noise = torch.randn(latent.size()).cuda()
-        latent = latent + latent * noise
-        return latent
-
-
 if __name__ == "__main__":
     from torchsummary import summary
 
-    mod = VT_AE().cuda()
+    mod = VT_AE()
     print(mod)
     summary(mod, (3, 512, 512))

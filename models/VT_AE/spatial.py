@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-from config import Config
 
 
 class Unity(nn.Module):
@@ -59,7 +58,6 @@ class DigitCaps(nn.Module):
     def __init__(self, out_num_caps=1, in_num_caps=8 * 8 * 64, in_dim_caps=8, out_dim_caps=512, decode_idx=-1):
         super(DigitCaps, self).__init__()
 
-        self.conf = Config()
         self.in_dim_caps = in_dim_caps
         self.in_num_caps = in_num_caps
         self.out_dim_caps = out_dim_caps
@@ -74,10 +72,8 @@ class DigitCaps(nn.Module):
         x_hat = torch.squeeze(torch.matmul(self.W, x[:, None, :, :, None]), dim=-1)
         x_hat_detached = x_hat.detach()
         # x_hat size: batch x ndigits x 1152 x 16
-        b = Variable(torch.zeros(x.size(0), self.out_num_caps, self.in_num_caps))
+        b = Variable(torch.zeros(x.size(0), self.out_num_caps, self.in_num_caps)).to(x.device)
         # b size: batch x ndigits x 1152
-        if self.conf.USE_CUDA:
-            b = b.cuda()
 
         # routing algo taken from https://github.com/XifengGuo/CapsNet-Pytorch/blob/master/capsulelayers.py
         num_iters = 3
@@ -98,13 +94,10 @@ class DigitCaps(nn.Module):
             classes = F.softmax(classes, dim=1)
             _, max_length_indices = classes.max(dim=1)
         else:  # always choose the same digitcaps
-            max_length_indices = torch.ones(outputs.size(0)).long() * self.decode_idx
-            if self.conf.USE_CUDA:
-                max_length_indices = max_length_indices.cuda()
+            max_length_indices = torch.ones_like(outputs).long() * self.decode_idx
+            max_length_indices = max_length_indices.to(x.device)
 
-        masked = Variable(torch.sparse.torch.eye(self.out_num_caps))
-        if self.conf.USE_CUDA:
-            masked = masked.cuda()
+        masked = Variable(torch.sparse.torch.eye(self.out_num_caps)).to(x.device)
         masked = masked.index_select(dim=0, index=max_length_indices)
         #        t = (outputs * masked[:, :, None]).view(x.size(0), -1)
         t = (outputs * masked[:, :, None]).sum(dim=1).unsqueeze(1)
@@ -121,11 +114,11 @@ class DigitCaps(nn.Module):
 if __name__ == "__main__":
     from torchsummary import summary
 
-    mod = Unity(16).cuda()
+    mod = Unity(16)
     print(mod)
     summary(mod, input_size=(512, 16, 16))
 
-    model = Spatial_Scorer().cuda()
-    x = torch.rand((225, 512)).cuda()
+    model = Spatial_Scorer()
+    x = torch.rand((225, 512))
     # print(model(x))
     summary(model, (1, 512), batch_size=225)
