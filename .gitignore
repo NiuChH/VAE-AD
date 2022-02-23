@@ -623,3 +623,4 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,pycharm+all,python,jupyternotebooks,latex,visualstudiocode
 
+datasets/
