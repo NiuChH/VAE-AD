@@ -1,4 +1,3 @@
-dev: cpu
 exp_dir: exp
 exp_name: debug_exp
 repeat_id: 0
@@ -16,7 +15,7 @@ dataset:
   name: mvtec
   root: "datasets/mvtec_anomaly_detection"
   batch_size: 8
-  product: hazelnut
+  product: bottle
   load_test: !!bool False
   use_cache: !!bool False
   cache_dir: "datasets/processed"
