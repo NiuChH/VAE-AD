@@ -15,48 +15,48 @@ import spatial as S
 # torch.autograd.set_detect_anomaly(True) # this is to check any problem in the network by backtracking
 
 class VT_AE(nn.Module):
-    def __init__(self, image_size = 512,
-                    patch_size = 64,
-                    num_classes = 1,
-                    dim = 512,
-                    depth = 6,
-                    heads = 8,
-                    mlp_dim = 1024,
-                    train= True):
+    def __init__(self, image_size=512,
+                 patch_size=64,
+                 num_classes=1,
+                 dim=512,
+                 depth=6,
+                 heads=8,
+                 mlp_dim=1024,
+                 train=True):
 
         super(VT_AE, self).__init__()
         self.vt = ViT(
-            image_size = image_size,
-            patch_size = patch_size,
-            num_classes = num_classes,
-            dim = dim,
-            depth = depth,
-            heads = heads,
-            mlp_dim = mlp_dim )
-        
-     
+            image_size=image_size,
+            patch_size=patch_size,
+            num_classes=num_classes,
+            dim=dim,
+            depth=depth,
+            heads=heads,
+            mlp_dim=mlp_dim)
+
         self.decoder = M.decoder2(8)
         # self.G_estimate= mdn1.MDN() # Trained in modular fashion
-        self.Digcap = S.DigitCaps(in_num_caps=((image_size//patch_size)**2)*8*8, in_dim_caps=8)
-        self.mask = torch.ones(1, image_size//patch_size, image_size//patch_size).bool().cuda()
+        self.Digcap = S.DigitCaps(in_num_caps=((image_size // patch_size) ** 2) * 8 * 8, in_dim_caps=8)
+        self.mask = torch.ones(1, image_size // patch_size, image_size // patch_size).bool().cuda()
         self.Train = train
-        
+
         if self.Train:
             print("\nInitializing network weights.........")
             initialize_weights(self.vt, self.decoder)
 
-    def forward(self,x):
+    def forward(self, x):
         b = x.size(0)
         encoded = self.vt(x, self.mask)
         if self.Train:
             encoded = add_noise(encoded)
-        encoded1, vectors = self.Digcap(encoded.view(b,encoded.size(1)*8*8,-1))
-        recons = self.decoder(encoded1.view(b,-1,8,8))
+        encoded1, vectors = self.Digcap(encoded.view(b, encoded.size(1) * 8 * 8, -1))
+        recons = self.decoder(encoded1.view(b, -1, 8, 8))
         # pi, mu, sigma = self.G_estimate(encoded)       
         # return encoded, pi, sigma, mu, recons
-            
+
         return encoded, recons
-    
+
+
 # Initialize weight function
 def initialize_weights(*models):
     for model in models:
@@ -68,7 +68,8 @@ def initialize_weights(*models):
             elif isinstance(module, nn.BatchNorm2d):
                 module.weight.data.fill_(1)
                 module.bias.data.zero_()
-                
+
+
 ##### Adding Noise ############
 
 def add_noise(latent, noise_type="gaussian", sd=0.2):
@@ -98,11 +99,10 @@ def add_noise(latent, noise_type="gaussian", sd=0.2):
         latent = latent + latent * noise
         return latent
 
+
 if __name__ == "__main__":
     from torchsummary import summary
 
     mod = VT_AE().cuda()
     print(mod)
-    summary(mod, (3,512,512))
-
-
+    summary(mod, (3, 512, 512))

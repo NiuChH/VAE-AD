@@ -12,34 +12,36 @@ from config import Config
 
 
 class Unity(nn.Module):
-    def __init__(self,ks, in_ch=512):
-        super(Unity,self).__init__()
-        
+    def __init__(self, ks, in_ch=512):
+        super(Unity, self).__init__()
+
         self.conv = nn.Conv2d(in_channels=in_ch, out_channels=512, kernel_size=ks)
-        
-    def forward(self,x):
-        return F.relu(self.conv(x), inplace= True)
-    
+
+    def forward(self, x):
+        return F.relu(self.conv(x), inplace=True)
+
+
 class Spatial_Scorer(nn.Module):
-    def __init__(self,in_dim=512,test=False):
-        super(Spatial_Scorer,self).__init__()
+    def __init__(self, in_dim=512, test=False):
+        super(Spatial_Scorer, self).__init__()
         self.test = test
-        
-        self.layers = nn.Sequential( nn.Linear(in_dim,256),
+
+        self.layers = nn.Sequential(nn.Linear(in_dim, 256),
                                     nn.ReLU(True),
-                                    nn.Linear(256,128),
+                                    nn.Linear(256, 128),
                                     nn.ReLU(True),
-                                    nn.Linear(128,1),
+                                    nn.Linear(128, 1),
                                     nn.Tanh())
         if not self.test:
             print("Initializing Spatial socrer network.........")
             initialize_weights(self.layers)
-        
+
     def forward(self, x):
-        x = x.view(x.size(0),-1)
+        x = x.view(x.size(0), -1)
         F = self.layers(x)
         return F
-        
+
+
 # Initialize weight function
 def initialize_weights(*models):
     for model in models:
@@ -51,9 +53,10 @@ def initialize_weights(*models):
             elif isinstance(module, nn.BatchNorm2d):
                 module.weight.data.fill_(1)
                 module.bias.data.zero_()
-                
+
+
 class DigitCaps(nn.Module):
-    def __init__(self, out_num_caps=1, in_num_caps=8*8*64, in_dim_caps=8, out_dim_caps=512, decode_idx=-1):
+    def __init__(self, out_num_caps=1, in_num_caps=8 * 8 * 64, in_dim_caps=8, out_dim_caps=512, decode_idx=-1):
         super(DigitCaps, self).__init__()
 
         self.conf = Config()
@@ -63,7 +66,8 @@ class DigitCaps(nn.Module):
         self.out_num_caps = out_num_caps
         self.decode_idx = decode_idx
         self.W = nn.Parameter(0.01 * torch.randn(out_num_caps, in_num_caps, out_dim_caps, in_dim_caps))
-#        self.upsample = upsampling()
+
+    #        self.upsample = upsampling()
 
     def forward(self, x):
         # x size: batch x 1152 x 8
@@ -80,15 +84,14 @@ class DigitCaps(nn.Module):
         for i in range(num_iters):
             c = F.softmax(b, dim=1)
             # c size: batch x ndigits x 1152
-            if i == num_iters -1:
+            if i == num_iters - 1:
                 # output size: batch x ndigits x 1 x 16
                 outputs = self.squash(torch.sum(c[:, :, :, None] * x_hat, dim=-2, keepdim=True))
             else:
                 outputs = self.squash(torch.sum(c[:, :, :, None] * x_hat_detached, dim=-2, keepdim=True))
                 b = b + torch.sum(outputs * x_hat_detached, dim=-1)
 
-
-        outputs = torch.squeeze(outputs, dim=-2) # squeezing to remove ones at the dimension -1
+        outputs = torch.squeeze(outputs, dim=-2)  # squeezing to remove ones at the dimension -1
         # Below code chooses the maximum lenth of the vector
         if self.decode_idx == -1:  # choose the longest vector as the one to decode
             classes = torch.sqrt((outputs ** 2).sum(2))
@@ -103,26 +106,26 @@ class DigitCaps(nn.Module):
         if self.conf.USE_CUDA:
             masked = masked.cuda()
         masked = masked.index_select(dim=0, index=max_length_indices)
-#        t = (outputs * masked[:, :, None]).view(x.size(0), -1)
+        #        t = (outputs * masked[:, :, None]).view(x.size(0), -1)
         t = (outputs * masked[:, :, None]).sum(dim=1).unsqueeze(1)
-#        t = self.upsample(t)
+        #        t = self.upsample(t)
 
         return t, outputs
 
     def squash(self, input_tensor):
         squared_norm = (input_tensor ** 2).sum(-1, keepdim=True)
-        output_tensor = squared_norm *  input_tensor / ((1. + squared_norm) * torch.sqrt(squared_norm))
+        output_tensor = squared_norm * input_tensor / ((1. + squared_norm) * torch.sqrt(squared_norm))
         return output_tensor
 
-    
-    
-if __name__=="__main__":
+
+if __name__ == "__main__":
     from torchsummary import summary
+
     mod = Unity(16).cuda()
     print(mod)
-    summary(mod, input_size=(512,16,16))
-    
+    summary(mod, input_size=(512, 16, 16))
+
     model = Spatial_Scorer().cuda()
-    x = torch.rand((225,512)).cuda()
+    x = torch.rand((225, 512)).cuda()
     # print(model(x))
-    summary(model, (1,512), batch_size=225)
+    summary(model, (1, 512), batch_size=225)

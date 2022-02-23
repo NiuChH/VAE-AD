@@ -11,7 +11,6 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 COEFS = 10
 IN_DIM = 512
 OUT_DIM = IN_DIM
@@ -36,8 +35,8 @@ class MDN(nn.Module):
         x = torch.clamp(x, ep)
 
         pi = F.softmax(self.pi(x), dim=-1)
-        sigma_sq = F.softplus(self.sigma_sq(x)).view(x.size(0),x.size(1),self.in_features, -1)  # logvar
-        mu = self.mu(x).view(x.size(0),x.size(1),self.in_features, -1)  # mean
+        sigma_sq = F.softplus(self.sigma_sq(x)).view(x.size(0), x.size(1), self.in_features, -1)  # logvar
+        mu = self.mu(x).view(x.size(0), x.size(1), self.in_features, -1)  # mean
         return pi, mu, sigma_sq
 
 
@@ -48,7 +47,7 @@ class MDN(nn.Module):
 
 
 def log_gaussian(x, mean, logvar):
-    '''
+    """
     Computes the Gaussian log-likelihoods
 
     Parameters:
@@ -58,19 +57,18 @@ def log_gaussian(x, mean, logvar):
 
     Returns:
          [samples]   log-likelihood of each sample
-    '''
+    """
 
-    
     x = x.unsqueeze(-1).expand_as(logvar)
     a = (x - mean) ** 2  # works on multiple samples thanks to tensor broadcasting
     log_p = (logvar + a / (torch.exp(logvar))).sum(2)
     log_p = -0.5 * (np.log(2 * np.pi) + log_p)
-    
-    return log_p 
+
+    return log_p
 
 
 def log_gmm(x, means, logvars, weights, total=True):
-    '''
+    """
     Computes the Gaussian Mixture Model log-likelihoods
 
     Parameters:
@@ -84,13 +82,13 @@ def log_gmm(x, means, logvars, weights, total=True):
         [samples]  if total=True. Log-likelihood of each sample
         [K,samples] if total=False. Log-likelihood of each sample for each model
 
-    '''
-    res = -log_gaussian(x ,means, logvars) # negative of log likelihood
-    
+    """
+    res = -log_gaussian(x, means, logvars)  # negative of log likelihood
+
     res = weights * res
 
     if total:
-        return torch.sum(res,2)
+        return torch.sum(res, 2)
     else:
         return res
 
@@ -99,10 +97,8 @@ def mdn_loss_function(x, means, logvars, weights, test=False):
     if test:
         res = log_gmm(x, means, logvars, weights)
     else:
-        res = torch.mean(torch.sum(log_gmm(x, means, logvars, weights),1))
+        res = torch.mean(torch.sum(log_gmm(x, means, logvars, weights), 1))
     return res
-
-
 
 
 ##### Adding Noise ############
@@ -135,11 +131,7 @@ def add_noise(latent, noise_type="gaussian", sd=0.2):
         return latent
 
 
-
 if __name__ == "__main__":
     model = MDN()
     model = model.cuda()
     print(model)
-
-
-
