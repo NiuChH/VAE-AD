@@ -75,7 +75,7 @@ def evaluate_auc(config, data, model, writer):
     mask_ls = []
     for dl, label in zip((data.test_norm_loader, data.test_anom_loader), (0, 1)):
         score_ls = []
-        for idx, (img_b, mask_b) in dl:
+        for idx, (img_b, mask_b) in enumerate(dl):
             img_b = img_b.to(config.dev)
             loss = model.forward(img_b, test=True)
             ano_score = model.get_ano_score()
@@ -113,7 +113,7 @@ def test_main(config):
     # optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
     writer = SummaryWriter(logdir=config.tensorboard_dir)
-    save_dict = torch.load(config.model.load_path)
+    save_dict = torch.load(config.model.load_path, map_location=config.dev)
     model.load_state_dict(save_dict['model'])
     # optimizer.load_state_dict(save_dict['optimizer'])
     # scheduler.load_state_dict(save_dict['scheduler'])
@@ -124,9 +124,16 @@ def test_main(config):
 
 
 if __name__ == "__main__":
-    args = parse_arguments('configs/mvtech_train.yaml')
+    args = parse_arguments('configs/mvtech_test.yaml')
     config_dict = get_config(args.config_file)
     process_config(config_dict)
     set_seed_and_logger(config_dict)
     # noinspection PyTypeChecker
-    train_main(config_dict)
+    test_main(config_dict)
+
+    # args = parse_arguments('configs/mvtech_train.yaml')
+    # config_dict = get_config(args.config_file)
+    # process_config(config_dict)
+    # set_seed_and_logger(config_dict)
+    # # noinspection PyTypeChecker
+    # train_main(config_dict)

@@ -183,6 +183,13 @@ class Mvtec:
         self.batch = batch_size
         self.product = ds_config.product
         torch.manual_seed(123)
+        T = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Resize((550, 550)),
+            transforms.CenterCrop(512),
+            transforms.ToTensor(),
+            #            transforms.Normalize((0.1307,), (0.3081,)),
+        ])
         if self.product == 'all':
             print('--------Please select a valid product.......See Train_data function-----------')
             return
@@ -195,13 +202,6 @@ class Mvtec:
                 # Importing all the image_path dictionaries for  test and train data #
                 train_path_images = Train_data(root=self.root, product=self.product)
                 # Image Transformation
-                T = transforms.Compose([
-                    transforms.ToPILImage(),
-                    transforms.Resize((550, 550)),
-                    transforms.CenterCrop(512),
-                    transforms.ToTensor(),
-                    #            transforms.Normalize((0.1307,), (0.3081,)),
-                ])
                 train_normal_image = torch.stack(
                     [T(load_images(j, i)) for j in train_path_images.keys() for i in train_path_images[j]])
 
