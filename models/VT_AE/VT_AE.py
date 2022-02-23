@@ -39,7 +39,7 @@ class VT_AE(nn.Module):
 
         if self.Train:
             print("\nInitializing network weights.........")
-            initialize_weights(self.vt, self.decoder)
+            S.initialize_weights(self.vt, self.decoder)
 
     def forward(self, x):
         b = x.size(0)
@@ -80,18 +80,6 @@ def add_noise(latent, noise_type="gaussian", sd=0.2):
         latent = latent + latent * noise
         return latent
 
-
-# Initialize weight function
-def initialize_weights(*models):
-    for model in models:
-        for module in model.modules():
-            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear):
-                nn.init.kaiming_normal_(module.weight)
-                if module.bias is not None:
-                    module.bias.data.zero_()
-            elif isinstance(module, nn.BatchNorm2d):
-                module.weight.data.fill_(1)
-                module.bias.data.zero_()
 
 
 if __name__ == "__main__":
