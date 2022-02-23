@@ -10,7 +10,7 @@ from models.VT_AE.VT_AE import VT_AE
 
 class VT_AE_Detector(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, config, train=True):
         super(VT_AE_Detector, self).__init__()
         self.vt_ae = VT_AE(image_size=512,
                            patch_size=64,
@@ -19,7 +19,7 @@ class VT_AE_Detector(nn.Module):
                            depth=6,
                            heads=8,
                            mlp_dim=1024,
-                           train=True)
+                           train=train)
         self.gmm = mdn1.MDN(input_dim=512, out_dim=512, layer_size=512, coefs=150)
         self.lambda_mse = 5.
         self.lambda_ssim = 0.5

@@ -9,7 +9,7 @@ seed: 1234
 model:
   name: VT_AE_Detector
   load_model: !!bool True
-  load_path: "/content/drive/MyDrive/10708_exp/VT/MVT-bottle/VT_AE_Detector_debug_Feb-23-08-13-02/models/model.pth"
+  load_path: "/content/drive/MyDrive/10708_exp/VT/MVT-bottle/VT_AE_Detector_debug_Feb-23-10-27-00/models/model.pth"
 
 logger_name: AD-logger
 

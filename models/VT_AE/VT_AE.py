@@ -6,7 +6,6 @@
 import torch
 import torch.nn as nn
 
-from models.VT_AE.mdn1 import add_noise
 from models.VT_AE.student_transformer import ViT
 import models.VT_AE.model_res18 as M
 import models.VT_AE.spatial as S
@@ -45,7 +44,7 @@ class VT_AE(nn.Module):
     def forward(self, x):
         b = x.size(0)
         encoded = self.vt(x, self.mask.to(x.device))
-        if self.Train:
+        if self.training:
             encoded = add_noise(encoded)
         encoded1, vectors = self.Digcap(encoded.view(b, encoded.size(1) * 8 * 8, -1))
         recons = self.decoder(encoded1.view(b, -1, 8, 8))
@@ -53,6 +52,33 @@ class VT_AE(nn.Module):
         # return encoded, pi, sigma, mu, recons
 
         return encoded, recons
+
+
+##### Adding Noise ############
+
+def add_noise(latent, noise_type="gaussian", sd=0.2):
+    """Here we add noise to the latent features concatenated from the 4 autoencoders.
+    Arguements:
+    'gaussian' (string): Gaussian-distributed additive noise.
+    'speckle' (string) : Multiplicative noise using out = image + n*image, where n is uniform noise with specified mean & variance.
+    'sd' (float) : standard deviation used for generating noise
+
+    Input :
+        latent : numpy array or cuda tensor.
+
+    Output:
+        Array: Noise added input, can be np array or cuda tnesor.
+    """
+    assert sd >= 0.0
+    if noise_type == "gaussian":
+        noise = torch.randn_like(latent) * sd
+        latent = latent + noise
+        return latent
+
+    if noise_type == "speckle":
+        noise = torch.randn_like(latent)
+        latent = latent + latent * noise
+        return latent
 
 
 # Initialize weight function

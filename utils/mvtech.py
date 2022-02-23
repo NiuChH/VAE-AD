@@ -262,6 +262,11 @@ class Mvtec:
             self.validation_loader = torch.utils.data.DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
 
+class MNIST_AD:
+    def __init__(self, ds_config):
+        ...
+
+
 if __name__ == "__main__":
 
     root = "datasets/mvtec_anomaly_detection"

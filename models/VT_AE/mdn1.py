@@ -95,33 +95,6 @@ def mdn_loss_function(x, means, logvars, weights, test=False):
     return res
 
 
-##### Adding Noise ############
-
-def add_noise(latent, noise_type="gaussian", sd=0.2):
-    """Here we add noise to the latent features concatenated from the 4 autoencoders.
-    Arguements:
-    'gaussian' (string): Gaussian-distributed additive noise.
-    'speckle' (string) : Multiplicative noise using out = image + n*image, where n is uniform noise with specified mean & variance.
-    'sd' (float) : standard deviation used for generating noise
-
-    Input :
-        latent : numpy array or cuda tensor.
-
-    Output:
-        Array: Noise added input, can be np array or cuda tnesor.
-    """
-    assert sd >= 0.0
-    if noise_type == "gaussian":
-        noise = torch.randn_like(latent) * sd
-        latent = latent + noise
-        return latent
-
-    if noise_type == "speckle":
-        noise = torch.randn_like(latent)
-        latent = latent + latent * noise
-        return latent
-
-
 if __name__ == "__main__":
     model = MDN()
     print(model)

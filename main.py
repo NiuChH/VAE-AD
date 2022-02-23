@@ -28,12 +28,11 @@ def fit(config, data, model, optimizer, scheduler, writer):
             model.zero_grad()
             loss = model.forward(x_batch)
             model.write_loss(writer, epoch)
-            model.write_hist(writer, epoch)
             batch_loss_ls.append(loss.item())
             loss.backward()
             optimizer.step()
         epoch_loss = np.mean(batch_loss_ls)
-        epoch_times.append(time.time() - time_st)
+        model.write_hist(writer, epoch)
         model.write_reconstructions(writer, epoch)
         writer.add_scalar('Mean Epoch loss', epoch_loss, epoch)
         writer.close()
@@ -51,6 +50,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
                 'scheduler': scheduler.state_dict()
             }
             torch.save(to_save, os.path.join(config.model_save_dir, f"model.pth"))
+        epoch_times.append(time.time() - time_st)
         avg_time = np.mean(epoch_times)
         eta = (config.train.epochs - epoch - 1) * avg_time
         logger.info(f'epoch={epoch:04d}, loss={epoch_loss:.4f}, best_epoch={best_epoch:04d}, min_loss={min_loss:.4f}, '
@@ -58,7 +58,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
 
 
 def train_main(config):
-    model = get_model(config)
+    model = get_model(config, train=True)
     log_model_params(config, model)
     optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
@@ -108,7 +108,7 @@ def evaluate_auc(config, data, model, writer):
 
 
 def test_main(config):
-    model = get_model(config)
+    model = get_model(config, train=False)
     log_model_params(config, model)
     # optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)

@@ -25,7 +25,7 @@ def log_model_params(config, model):
 
 
 def get_model(config, **kwargs):
-    model = eval(config.model.name)(config)
+    model = eval(config.model.name)(config, **kwargs)
     return model.to(config.dev)
 
 
