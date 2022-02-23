@@ -10,7 +10,7 @@ from tensorboardX import SummaryWriter
 
 from utils.arg_helper import set_seed_and_logger, get_config, parse_arguments, process_config, edict2dict
 from utils.load_helper import log_model_params, get_model, load_data
-from utils.utility_fun import Filter
+from utils.utility_fun import Filter, plot
 
 
 def fit(config, data, model, optimizer, scheduler, writer):
@@ -74,12 +74,10 @@ def evaluate_auc(config, data, model, writer):
     loc_ls = []
     mask_ls = []
     for dl, label in zip((data.test_norm_loader, data.test_anom_loader), (0, 1)):
-        score_ls = []
         for idx, (img_b, mask_b) in enumerate(dl):
-            img_b = img_b.to(config.dev)
-            loss = model.forward(img_b, test=True)
+            loss = model.forward(img_b.to(config.dev), test=True)
             ano_score = model.get_ano_score()
-            score_ls.append(ano_score)
+            all_score_ls[label].append(ano_score)
 
             ano_loc = model.get_ano_loc_score()
             m = torch.nn.UpsamplingBilinear2d((512, 512))
@@ -88,12 +86,13 @@ def evaluate_auc(config, data, model, writer):
             score_map = Filter(score_map, type=0)
             loc_ls.append(score_map)  # Storing all score maps
             mask_ls.append(mask_b.squeeze(0).squeeze(0).cpu().numpy())
-        all_score_ls[label] = score_ls
+            if idx % 5 == 0:
+                plot(img_b, mask_b, score_map[0][0])
 
     # PRO Score
     loc_np = np.asarray(loc_ls).flatten()
     mask_np = np.asarray(mask_ls).flatten()
-    PRO_score = roc_auc_score(mask_np, loc_np)
+    PRO_score = roc_auc_score(mask_np, loc_np, max_fpr=0.3)
 
     # Image Anomaly Classification Score (AUC)
     roc_scores = np.concatenate(all_score_ls)

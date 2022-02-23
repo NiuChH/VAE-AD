@@ -46,7 +46,7 @@ def read_files(root, d, product, data_motive='train', use_good=True, normal=True
                         if data_motive == 'train':
                             tr_img_pth = os.path.join(root, d, d_in, i)
                             images = os.listdir(tr_img_pth)
-                            im_pt[tr_img_pth] = images
+                            im_pt[tr_img_pth] = sorted(images)
                             print(f'total {d_in} images of {i} {d} are: {len(images)}')
 
                         if data_motive == 'test':
@@ -56,17 +56,17 @@ def read_files(root, d, product, data_motive='train', use_good=True, normal=True
                             elif (use_good == False) and (i != 'good') and normal != True:
                                 tr_img_pth = os.path.join(root, d, d_in, i)
                                 images = os.listdir(tr_img_pth)
-                                im_pt[tr_img_pth] = images
+                                im_pt[tr_img_pth] = sorted(images)
                                 print(f'total {d_in} images of {i} {d} are: {len(images)}')
                             elif (use_good == True) and (i == 'good') and (normal == True):
                                 tr_img_pth = os.path.join(root, d, d_in, i)
                                 images = os.listdir(tr_img_pth)
-                                im_pt[tr_img_pth] = images
+                                im_pt[tr_img_pth] = sorted(images)
                                 print(f'total {d_in} images of {i} {d} are: {len(images)}')
                         if data_motive == 'ground_truth':
                             tr_img_pth = os.path.join(root, d, d_in, i)
                             images = os.listdir(tr_img_pth)
-                            im_pt[tr_img_pth] = images
+                            im_pt[tr_img_pth] = sorted(images)
                             print(f'total {d_in} images of {i} {d} are: {len(images)}')
                 if product == "all":
                     return
