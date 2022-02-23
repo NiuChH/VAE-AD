@@ -1,5 +1,5 @@
-exp_dir: exp
-exp_name: debug_exp
+exp_dir: /content/drive/MyDrive/10708_exp/VT
+exp_name: MVT-bottle
 repeat_id: 0
 comment: debug
 log_level: INFO
@@ -16,12 +16,13 @@ dataset:
   root: "/content"
   batch_size: 8
   product: bottle
+  load_train: !!bool True
   load_test: !!bool False
   use_cache: !!bool False
   cache_dir: "datasets/processed"
 
 train:
-  epochs: 5
+  epochs: 400
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:

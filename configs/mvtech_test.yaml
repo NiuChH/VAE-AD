@@ -8,17 +8,18 @@ seed: 1234
 
 model:
   name: VT_AE_Detector
-  load_model: !!bool False
+  load_model: !!bool True
+  load_path: ...
 
 logger_name: AD-logger
 
 dataset:
   name: mvtec
   root: "datasets/mvtec_anomaly_detection"
-  batch_size: 8
+  batch_size: 1
   product: bottle
-  load_train: !!bool True
-  load_test: !!bool False
+  load_train: !!bool False
+  load_test: !!bool True
   use_cache: !!bool False
   cache_dir: "datasets/processed"
   patch_size: 64

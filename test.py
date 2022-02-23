@@ -3,15 +3,15 @@
 @author: Pankaj Mishra
 """
 
-import mvtech
+from utils import mvtech
 import torch.nn.functional as F
 import pytorch_ssim
 from einops import rearrange
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import precision_recall_curve
-import mdn1
-from VT_AE import VT_AE as ae
+from models.VT_AE import mdn1
+from models.VT_AE.VT_AE import VT_AE as ae
 from utils.utility_fun import *
 
 prdt = "cable"
@@ -71,10 +71,10 @@ def Thresholding(data_load=loader[1:], upsample=1, thres_type=0, fpr_thres=0.3):
             pi, mu, sigma = G_estimate(vector)
 
             # Loss calculations
-            loss1 = F.mse_loss(reconstructions, i.cuda(), reduction='mean')  # Rec Loss
-            loss2 = -ssim_loss(i.cuda(), reconstructions)  # SSIM loss for structural similarity
+            # loss1 = F.mse_loss(reconstructions, i.cuda(), reduction='mean')  # Rec Loss
+            # loss2 = -ssim_loss(i.cuda(), reconstructions)  # SSIM loss for structural similarity
             loss3 = mdn1.mdn_loss_function(vector, mu, sigma, pi, test=True)  # MDN loss for gaussian approximation
-            loss = loss1 + loss2 + loss3.sum()  # Total loss
+            # loss = loss1 + loss2 + loss3.sum()  # Total loss
             norm_loss_t.append(loss3.detach().cpu().numpy())
 
             if upsample == 0:
@@ -135,7 +135,7 @@ def Patch_Overlap_Score(threshold, data_load=loader[1:], upsample=1):
             loss1 = F.mse_loss(reconstructions, i.cuda(), reduction='mean')  # Rec Loss
             loss2 = -ssim_loss(i.cuda(), reconstructions)  # SSIM loss for structural similarity
             loss3 = mdn1.mdn_loss_function(vector, mu, sigma, pi, test=True)  # MDN loss for gaussian approximation
-            loss = loss1 - loss2 + loss3.max()  # Total loss
+            loss = loss1 - loss2 + loss3.max()  # Total loss # why???
             norm_loss_t.append(loss3.detach().cpu().numpy())
             total_loss_all.append(loss.detach().cpu().numpy())
 

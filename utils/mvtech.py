@@ -186,33 +186,34 @@ class Mvtec:
         if self.product == 'all':
             print('--------Please select a valid product.......See Train_data function-----------')
             return
-        train_cache_path = os.path.join(ds_config.cache_dir, f'train_{self.product}.pkl')
-        if ds_config.use_cache and os.path.exists(train_cache_path):
-            train_normal = pickle.load(open(train_cache_path, 'rb'))
-            print('read from cache')
-        else:
-            # Importing all the image_path dictionaries for  test and train data #
-            train_path_images = Train_data(root=self.root, product=self.product)
-            # Image Transformation
-            T = transforms.Compose([
-                transforms.ToPILImage(),
-                transforms.Resize((550, 550)),
-                transforms.CenterCrop(512),
-                transforms.ToTensor(),
-                #            transforms.Normalize((0.1307,), (0.3081,)),
-            ])
-            train_normal_image = torch.stack(
-                [T(load_images(j, i)) for j in train_path_images.keys() for i in train_path_images[j]])
+        if ds_config.load_train:
+            train_cache_path = os.path.join(ds_config.cache_dir, f'train_{self.product}.pkl')
+            if ds_config.use_cache and os.path.exists(train_cache_path):
+                train_normal = pickle.load(open(train_cache_path, 'rb'))
+                print('read from cache')
+            else:
+                # Importing all the image_path dictionaries for  test and train data #
+                train_path_images = Train_data(root=self.root, product=self.product)
+                # Image Transformation
+                T = transforms.Compose([
+                    transforms.ToPILImage(),
+                    transforms.Resize((550, 550)),
+                    transforms.CenterCrop(512),
+                    transforms.ToTensor(),
+                    #            transforms.Normalize((0.1307,), (0.3081,)),
+                ])
+                train_normal_image = torch.stack(
+                    [T(load_images(j, i)) for j in train_path_images.keys() for i in train_path_images[j]])
 
-            train_normal_mask = torch.zeros(train_normal_image.size(0), 1, train_normal_image.size(2),
-                                            train_normal_image.size(3))
-            train_normal = tuple(zip(train_normal_image, train_normal_mask))
-            if ds_config.use_cache:
-                pickle.dump(train_normal, open(train_cache_path, 'wb'))
+                train_normal_mask = torch.zeros(train_normal_image.size(0), 1, train_normal_image.size(2),
+                                                train_normal_image.size(3))
+                train_normal = tuple(zip(train_normal_image, train_normal_mask))
+                if ds_config.use_cache:
+                    pickle.dump(train_normal, open(train_cache_path, 'wb'))
 
-        print(f' --Size of {self.product} train loader: {train_normal_image.size()}--')
+            print(f' --Size of {self.product} train loader: {train_normal_image.size()}--')
 
-        self.train_loader = torch.utils.data.DataLoader(train_normal, batch_size=batch_size, shuffle=True)
+            self.train_loader = torch.utils.data.DataLoader(train_normal, batch_size=batch_size, shuffle=True)
 
         if ds_config.load_test:
             test_cache_path = os.path.join(ds_config.cache_dir, f'test_{self.product}.pkl')

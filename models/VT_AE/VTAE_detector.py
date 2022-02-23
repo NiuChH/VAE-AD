@@ -32,7 +32,7 @@ class VT_AE_Detector(nn.Module):
             'mse_loss': None, 'ssim_loss': None, 'll_loss': None, 'sum_loss': None
         })
 
-    def forward(self, x):
+    def forward(self, x, test=False):
         vector, reconstructions = self.vt_ae(x)
         pi, mu, sigma = self.gmm(vector)
         self.result_cache.update({
@@ -42,13 +42,21 @@ class VT_AE_Detector(nn.Module):
 
         mse_loss = F.mse_loss(reconstructions, x, reduction='mean')  # Rec Loss
         ssim_loss = -self.ssim_loss_func(x, reconstructions)  # SSIM loss for structural similarity
-        ll_loss = mdn1.mdn_loss_function(vector, mu, sigma, pi)  # MDN loss for gaussian approximation
+        ll_loss = mdn1.mdn_loss_function(vector, mu, sigma, pi, test=test)  # MDN loss for gaussian approximation
 
         sum_loss = self.lambda_mse * mse_loss + self.lambda_ssim * ssim_loss + ll_loss
         self.loss_cache.update({
             'mse_loss': mse_loss, 'ssim_loss': ssim_loss, 'll_loss': ll_loss, 'sum_loss': sum_loss
         })
         return sum_loss
+
+    def get_ano_score(self):
+        # TODO: - or +
+        score = self.loss_cache.mse_loss - self.loss_cache.ssim_loss + self.loss_cache.ll_loss.max()
+        return score.detach().cpu().numpy()
+
+    def get_ano_loc_score(self):
+        return self.loss_cache.ll_loss.detach().cpu().numpy()
 
     def write_loss(self, writer, epoch):
         writer.add_scalar('recon-loss', self.loss_cache.mse_loss.item(), epoch)

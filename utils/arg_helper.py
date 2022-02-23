@@ -37,12 +37,12 @@ def get_config(config_file):
     print('config_file:', config_file)
     """ Construct and snapshot hyper parameters """
     config = edict(yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader))
-    process_config(config, comment=config.comment)
     return config
 
 
-def process_config(config, comment=''):
+def process_config(config):
     # create hyper parameters
+    comment = config.comment
     dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     config.dev = dev
     config.run_id = str(os.getpid())
@@ -101,10 +101,11 @@ def set_seed_and_logger(config):
     log_file = os.path.join(config.save_dir, config.log_level.lower() + ".log")
 
     FORMAT = config.comment + '| %(asctime)s %(message)s'
+    formatter = logging.Formatter(FORMAT)
     fh = logging.FileHandler(log_file)
     sh = logging.StreamHandler(sys.stdout)
-    fh.setFormatter(logging.Formatter(FORMAT))
-    sh.setFormatter(logging.Formatter(FORMAT))
+    fh.setFormatter(formatter)
+    sh.setFormatter(formatter)
 
     logger = logging.getLogger(config.logger_name)
     logger.setLevel(config.log_level)

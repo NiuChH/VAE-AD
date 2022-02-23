@@ -5,10 +5,12 @@ import time
 import numpy as np
 import torch.optim.lr_scheduler
 from easydict import EasyDict as edict
+from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 from tensorboardX import SummaryWriter
 
 from utils.arg_helper import set_seed_and_logger, get_config, parse_arguments, process_config, edict2dict
 from utils.load_helper import log_model_params, get_model, load_data
+from utils.utility_fun import Filter
 
 
 def fit(config, data, model, optimizer, scheduler, writer):
@@ -51,12 +53,11 @@ def fit(config, data, model, optimizer, scheduler, writer):
             torch.save(to_save, os.path.join(config.model_save_dir, f"model.pth"))
         avg_time = np.mean(epoch_times)
         eta = (config.train.epochs - epoch - 1) * avg_time
-        logger.info(f'epoch={epoch}, loss={epoch_loss}, best_epoch={best_epoch}, min_loss={min_loss}, '
-                    f'time={epoch_times[-1]:.2f}, eta={time.strftime("%H:%M:%S", time.gmtime(eta))}')
+        logger.info(f'epoch={epoch:04d}, loss={epoch_loss:.4f}, best_epoch={best_epoch:04d}, min_loss={min_loss:.4f}, '
+                    + f'time={epoch_times[-1]:.2f}, eta={time.strftime("%H:%M:%S", time.gmtime(eta))}')
 
 
 def train_main(config):
-    set_seed_and_logger(config)
     model = get_model(config)
     log_model_params(config, model)
     optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
@@ -66,11 +67,66 @@ def train_main(config):
     fit(config, data, model, optimizer, scheduler, writer)
 
 
+def evaluate_auc(config, data, model, writer):
+    model.eval()
+    patch_size = config.dataset.patch_size
+    all_score_ls = [[], []]
+    loc_ls = []
+    mask_ls = []
+    for dl, label in zip((data.test_norm_loader, data.test_anom_loader), (0, 1)):
+        score_ls = []
+        for idx, (img_b, mask_b) in dl:
+            img_b = img_b.to(config.dev)
+            loss = model.forward(img_b, test=True)
+            ano_score = model.get_ano_score()
+            score_ls.append(ano_score)
+
+            ano_loc = model.get_ano_loc_score()
+            m = torch.nn.UpsamplingBilinear2d((512, 512))
+            norm_score = ano_loc.reshape(-1, 1, 512 // patch_size, 512 // patch_size)
+            score_map = m(torch.tensor(norm_score))
+            score_map = Filter(score_map, type=0)
+            loc_ls.append(score_map)  # Storing all score maps
+            mask_ls.append(mask_b.squeeze(0).squeeze(0).cpu().numpy())
+        all_score_ls[label] = score_ls
+
+    # PRO Score
+    loc_np = np.asarray(loc_ls).flatten()
+    mask_np = np.asarray(mask_ls).flatten()
+    PRO_score = roc_auc_score(mask_np, loc_np)
+
+    # Image Anomaly Classification Score (AUC)
+    roc_scores = np.concatenate(all_score_ls)
+    roc_targets = np.concatenate((np.zeros(len(all_score_ls[0])), np.ones(len(all_score_ls[1]))))
+    AUC_Score_total = roc_auc_score(roc_targets, roc_scores)
+
+    # AUC Precision Recall Curve
+    precision, recall, thres = precision_recall_curve(roc_targets, roc_scores)
+    AUC_PR = auc(recall, precision)
+
+    return PRO_score, AUC_Score_total, AUC_PR
+
+
+def test_main(config):
+    model = get_model(config)
+    log_model_params(config, model)
+    # optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
+    writer = SummaryWriter(logdir=config.tensorboard_dir)
+    save_dict = torch.load(config.model.load_path)
+    model.load_state_dict(save_dict['model'])
+    # optimizer.load_state_dict(save_dict['optimizer'])
+    # scheduler.load_state_dict(save_dict['scheduler'])
+    data = load_data(config)
+    with torch.no_grad():
+        PRO, AUC, AUC_PR = evaluate_auc(config, data, model, writer)
+    print(f'PRO Score: {PRO} \nAUC Total: {AUC} \nPR_AUC Total: {AUC_PR}')
+
+
 if __name__ == "__main__":
     args = parse_arguments('configs/mvtech_train.yaml')
-    ori_config_dict = get_config(args.config_file)
-    config_dict = edict(ori_config_dict.copy())
+    config_dict = get_config(args.config_file)
     process_config(config_dict)
-    print(config_dict)
+    set_seed_and_logger(config_dict)
     # noinspection PyTypeChecker
     train_main(config_dict)
