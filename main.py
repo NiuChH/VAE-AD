@@ -14,7 +14,6 @@ from utils.load_helper import log_model_params, get_model, load_data
 def fit(config, data, model, optimizer, scheduler, writer):
     logger = logging.getLogger(config.logger_name)
     dev = config.dev
-    model.to(dev)
     model.train()
     min_loss = 1e10
     best_epoch = -1
@@ -23,7 +22,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
         batch_loss_ls = []
         time_st = time.time()
         for x_batch, _ in data.train_loader:
-            x_batch.to(dev)
+            x_batch = x_batch.to(dev)
             model.zero_grad()
             loss = model.forward(x_batch)
             model.write_loss(writer, epoch)
@@ -59,7 +58,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
 def train_main(config):
     set_seed_and_logger(config)
     model = get_model(config)
-    log_model_params(model)
+    log_model_params(config, model)
     optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
     writer = SummaryWriter(logdir=config.tensorboard_dir)

@@ -44,7 +44,7 @@ class VT_AE(nn.Module):
 
     def forward(self, x):
         b = x.size(0)
-        encoded = self.vt(x, self.mask)
+        encoded = self.vt(x, self.mask.to(x.device))
         if self.Train:
             encoded = add_noise(encoded)
         encoded1, vectors = self.Digcap(encoded.view(b, encoded.size(1) * 8 * 8, -1))

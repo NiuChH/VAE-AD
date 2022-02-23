@@ -37,7 +37,6 @@ def get_config(config_file):
     print('config_file:', config_file)
     """ Construct and snapshot hyper parameters """
     config = edict(yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader))
-    config.dev = torch.device(config.dev)
     process_config(config, comment=config.comment)
     return config
 
@@ -55,10 +54,10 @@ def process_config(config, comment=''):
     if 'save_dir' not in config:
         config.save_dir = os.path.join(config.exp_dir, config.exp_name, config.folder_name)
     if 'result_dir' not in config:
-        config.result_dir = os.path.join(config.exp_dir, config.exp_name, config.folder_name, 'results')
+        config.result_dir = os.path.join(config.save_dir, 'results')
     if 'model_save_dir' not in config:
         config.model_save_dir = os.path.join(config.save_dir, 'models')
-    config.tensorboard_dir = os.path.join(config.exp_dir, config.exp_name, config.folder_name, 'runs')
+    config.tensorboard_dir = os.path.join(config.save_dir, 'runs')
 
     # snapshot hyper-parameters and code
     mkdir(config.exp_dir)
@@ -103,13 +102,12 @@ def set_seed_and_logger(config):
 
     FORMAT = config.comment + '| %(asctime)s %(message)s'
     fh = logging.FileHandler(log_file)
-    fh.setLevel(config.log_level)
     sh = logging.StreamHandler(sys.stdout)
     fh.setFormatter(logging.Formatter(FORMAT))
     sh.setFormatter(logging.Formatter(FORMAT))
 
     logger = logging.getLogger(config.logger_name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(config.log_level)
     logger.addHandler(fh)
     logger.addHandler(sh)
     logger.info('EXPERIMENT BEGIN: ' + config.comment)
