@@ -1,5 +1,6 @@
 import logging
 
+from utils.mnist_ad import MNIST_AD
 from utils.mvtech import Mvtec
 from models import *
 
@@ -24,12 +25,14 @@ def log_model_params(config, model):
                 f"{'-' * max_string_len}")
 
 
-def get_model(config, **kwargs):
-    model = eval(config.model.name)(config, **kwargs)
-    return model.to(config.dev)
+def get_model(config_model, **kwargs):
+    model = eval(config_model.name)(config_model, **kwargs)
+    return model
 
 
 def load_data(config):
     if config.dataset.name.lower() == 'mvtec':
         return Mvtec(config.dataset)
+    elif config.dataset.name.lower() == 'mnist':
+        return MNIST_AD(config.dataset)
     ...

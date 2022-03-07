@@ -38,3 +38,22 @@ class decoder2(nn.Module):
         recon = self.decoder2(x)
         return recon
 
+
+class decoder28(nn.Module):
+    def __init__(self, in_channels):
+        super(decoder28, self).__init__()
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=in_channels, out_channels=16, kernel_size=3, stride=2, padding=1),
+            # In b, 8, 8, 8 >> out b, 16, 15, 15
+            nn.BatchNorm2d(16, affine=True),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(16, 8, 3, stride=2, padding=2),  # out> b, 8, 29, 29
+            nn.BatchNorm2d(8, affine=True),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(8, 3, 2, stride=1),  # out> b, 3, 28, 28
+            nn.Tanh()
+        )
+
+    def forward(self, x):
+        recon = self.decoder(x)
+        return recon

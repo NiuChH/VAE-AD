@@ -10,20 +10,13 @@ from models.VT_AE.VT_AE import VT_AE
 
 class VT_AE_Detector(nn.Module):
 
-    def __init__(self, config, train=True):
+    def __init__(self, config_model, train=True):
         super(VT_AE_Detector, self).__init__()
-        self.vt_ae = VT_AE(image_size=512,
-                           patch_size=64,
-                           num_classes=1,
-                           dim=512,
-                           depth=6,
-                           heads=8,
-                           mlp_dim=1024,
-                           train=train)
-        self.gmm = mdn1.MDN(input_dim=512, out_dim=512, layer_size=512, coefs=150)
-        self.lambda_mse = 5.
-        self.lambda_ssim = 0.5
-        self.ssim_loss_func = pytorch_ssim.SSIM(window_size=11, size_average=True)  # SSIM Loss
+        self.vt_ae = VT_AE(train=train, **config_model.vt_ae)
+        self.gmm = mdn1.MDN(**config_model.mdn)
+        self.lambda_mse = float(config_model.lambda_mse)
+        self.lambda_ssim = float(config_model.lambda_ssim)
+        self.ssim_loss_func = pytorch_ssim.SSIM(**config_model.ssim)  # SSIM Loss
         self.result_cache = easydict.EasyDict({
             'vector': None, 'reconstructions': None,
             'pi': None, 'mu': None, 'sigma': None

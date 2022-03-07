@@ -183,7 +183,7 @@ class Mvtec:
         self.batch = batch_size
         self.product = ds_config.product
         torch.manual_seed(123)
-        T = transforms.Compose([
+        transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((550, 550)),
             transforms.CenterCrop(512),
@@ -203,7 +203,7 @@ class Mvtec:
                 train_path_images = Train_data(root=self.root, product=self.product)
                 # Image Transformation
                 train_normal_image = torch.stack(
-                    [T(load_images(j, i)) for j in train_path_images.keys() for i in train_path_images[j]])
+                    [transform(load_images(j, i)) for j in train_path_images.keys() for i in train_path_images[j]])
 
                 train_normal_mask = torch.zeros(train_normal_image.size(0), 1, train_normal_image.size(2),
                                                 train_normal_image.size(3))
@@ -226,14 +226,14 @@ class Mvtec:
                 test_norm_path_images = Test_normal_data(root=self.root, product=self.product)
 
                 test_anom_image = torch.stack(
-                    [T(load_images(j, i)) for j in test_anom_path_images.keys() for i in test_anom_path_images[j]])
+                    [transform(load_images(j, i)) for j in test_anom_path_images.keys() for i in test_anom_path_images[j]])
                 test_normal_image = torch.stack(
-                    [T(load_images(j, i)) for j in test_norm_path_images.keys() for i in test_norm_path_images[j]])
+                    [transform(load_images(j, i)) for j in test_norm_path_images.keys() for i in test_norm_path_images[j]])
 
                 test_normal_mask = torch.zeros(test_normal_image.size(0), 1, test_normal_image.size(2),
                                                test_normal_image.size(3))
                 test_anom_mask = torch.stack(
-                    [Process_mask(T(load_images(j, i))) for j in test_anom_mask_path_images.keys() for i in
+                    [Process_mask(transform(load_images(j, i))) for j in test_anom_mask_path_images.keys() for i in
                      test_anom_mask_path_images[j]])
                 test_anom = tuple(zip(test_anom_image, test_anom_mask))
                 test_normal = tuple(zip(test_normal_image, test_normal_mask))

@@ -61,12 +61,13 @@ def fit(config, data, model, optimizer, scheduler, writer):
 
 
 def train_main(config):
-    model = get_model(config, train=True)
+    model = get_model(config.model, train=True)
     log_model_params(config, model)
     optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
     writer = SummaryWriter(logdir=config.tensorboard_dir)
     data = load_data(config)
+    model = model.to(config.dev)
     fit(config, data, model, optimizer, scheduler, writer)
 
 
@@ -78,6 +79,8 @@ def evaluate_auc(config, data, model, writer):
     mask_ls = []
     for dl, label in zip((data.test_norm_loader, data.test_anom_loader), (0, 1)):
         for idx, (img_b, mask_b) in enumerate(dl):
+            if img_b.size(1) == 1:
+                img_b = torch.stack([img_b, img_b, img_b], dim=1).squeeze(2)
             loss = model.forward(img_b.to(config.dev), test=True)
             ano_score = model.get_ano_score()
             all_score_ls[label].append(ano_score)
@@ -110,13 +113,15 @@ def evaluate_auc(config, data, model, writer):
 
 
 def test_main(config):
-    model = get_model(config, train=False)
+    save_dict = torch.load(config.model.load_path, map_location=config.dev)
+    ori_config = edict(save_dict['config'])
+
+    model = get_model(ori_config.model, train=False).to(config.dev)
     log_model_params(config, model)
+    model.load_state_dict(save_dict['model'])
+    writer = SummaryWriter(logdir=config.tensorboard_dir)
     # optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
-    writer = SummaryWriter(logdir=config.tensorboard_dir)
-    save_dict = torch.load(config.model.load_path, map_location=config.dev)
-    model.load_state_dict(save_dict['model'])
     # optimizer.load_state_dict(save_dict['optimizer'])
     # scheduler.load_state_dict(save_dict['scheduler'])
     data = load_data(config)
@@ -133,7 +138,8 @@ if __name__ == "__main__":
     # # noinspection PyTypeChecker
     # test_main(config_dict)
 
-    args = parse_arguments('configs/mvtech_train.yaml')
+    # args = parse_arguments('configs/mvtech_train.yaml')
+    args = parse_arguments('configs/mnist_train.yaml')
     config_dict = get_config(args.config_file)
     process_config(config_dict)
     set_seed_and_logger(config_dict)

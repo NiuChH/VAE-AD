@@ -30,10 +30,16 @@ class VT_AE(nn.Module):
             depth=depth,
             heads=heads,
             mlp_dim=mlp_dim)
-
-        self.decoder = M.decoder2(8)
+        out_dim_caps = 512
+        if image_size == 512:
+            self.decoder = M.decoder2(out_dim_caps//64)
+        elif image_size == 28:
+            self.decoder = M.decoder28(out_dim_caps//64)
+        else:
+            ...
         # self.G_estimate= mdn1.MDN() # Trained in modular fashion
-        self.Digcap = S.DigitCaps(in_num_caps=((image_size // patch_size) ** 2) * 8 * 8, in_dim_caps=8)
+        self.Digcap = S.DigitCaps(in_num_caps=((image_size // patch_size) ** 2) * 8 * 8,
+                                  in_dim_caps=dim//64, out_dim_caps=out_dim_caps)
         self.mask = torch.ones(1, image_size // patch_size, image_size // patch_size).bool()
         self.Train = train
 

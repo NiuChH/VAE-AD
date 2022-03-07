@@ -10,35 +10,35 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 
-class Unity(nn.Module):
-    def __init__(self, ks, in_ch=512):
-        super(Unity, self).__init__()
+# class Unity(nn.Module):
+#     def __init__(self, ks, in_ch=512):
+#         super(Unity, self).__init__()
+#
+#         self.conv = nn.Conv2d(in_channels=in_ch, out_channels=512, kernel_size=ks)
+#
+#     def forward(self, x):
+#         return F.relu(self.conv(x), inplace=True)
 
-        self.conv = nn.Conv2d(in_channels=in_ch, out_channels=512, kernel_size=ks)
 
-    def forward(self, x):
-        return F.relu(self.conv(x), inplace=True)
-
-
-class Spatial_Scorer(nn.Module):
-    def __init__(self, in_dim=512, test=False):
-        super(Spatial_Scorer, self).__init__()
-        self.test = test
-
-        self.layers = nn.Sequential(nn.Linear(in_dim, 256),
-                                    nn.ReLU(True),
-                                    nn.Linear(256, 128),
-                                    nn.ReLU(True),
-                                    nn.Linear(128, 1),
-                                    nn.Tanh())
-        if not self.test:
-            print("Initializing Spatial socrer network.........")
-            initialize_weights(self.layers)
-
-    def forward(self, x):
-        x = x.view(x.size(0), -1)
-        F = self.layers(x)
-        return F
+# class Spatial_Scorer(nn.Module):
+#     def __init__(self, in_dim=512, test=False):
+#         super(Spatial_Scorer, self).__init__()
+#         self.test = test
+#
+#         self.layers = nn.Sequential(nn.Linear(in_dim, 256),
+#                                     nn.ReLU(True),
+#                                     nn.Linear(256, 128),
+#                                     nn.ReLU(True),
+#                                     nn.Linear(128, 1),
+#                                     nn.Tanh())
+#         if not self.test:
+#             print("Initializing Spatial socrer network.........")
+#             initialize_weights(self.layers)
+#
+#     def forward(self, x):
+#         x = x.view(x.size(0), -1)
+#         F = self.layers(x)
+#         return F
 
 
 # Initialize weight function
@@ -52,6 +52,12 @@ def initialize_weights(*models):
             elif isinstance(module, nn.BatchNorm2d):
                 module.weight.data.fill_(1)
                 module.bias.data.zero_()
+
+
+def squash(input_tensor):
+    squared_norm = (input_tensor ** 2).sum(-1, keepdim=True)
+    output_tensor = squared_norm * input_tensor / ((1. + squared_norm) * torch.sqrt(squared_norm))
+    return output_tensor
 
 
 class DigitCaps(nn.Module):
@@ -82,9 +88,9 @@ class DigitCaps(nn.Module):
             # c size: batch x ndigits x 1152
             if i == num_iters - 1:
                 # output size: batch x ndigits x 1 x 16
-                outputs = self.squash(torch.sum(c[:, :, :, None] * x_hat, dim=-2, keepdim=True))
+                outputs = squash(torch.sum(c[:, :, :, None] * x_hat, dim=-2, keepdim=True))
             else:
-                outputs = self.squash(torch.sum(c[:, :, :, None] * x_hat_detached, dim=-2, keepdim=True))
+                outputs = squash(torch.sum(c[:, :, :, None] * x_hat_detached, dim=-2, keepdim=True))
                 b = b + torch.sum(outputs * x_hat_detached, dim=-1)
 
         outputs = torch.squeeze(outputs, dim=-2)  # squeezing to remove ones at the dimension -1
@@ -105,20 +111,14 @@ class DigitCaps(nn.Module):
 
         return t, outputs
 
-    def squash(self, input_tensor):
-        squared_norm = (input_tensor ** 2).sum(-1, keepdim=True)
-        output_tensor = squared_norm * input_tensor / ((1. + squared_norm) * torch.sqrt(squared_norm))
-        return output_tensor
-
-
-if __name__ == "__main__":
-    from torchsummary import summary
-
-    mod = Unity(16)
-    print(mod)
-    summary(mod, input_size=(512, 16, 16))
-
-    model = Spatial_Scorer()
-    x = torch.rand((225, 512))
-    # print(model(x))
-    summary(model, (1, 512), batch_size=225)
+# if __name__ == "__main__":
+#     from torchsummary import summary
+#
+#     mod = Unity(16)
+#     print(mod)
+#     summary(mod, input_size=(512, 16, 16))
+#
+#     model = Spatial_Scorer()
+#     x = torch.rand((225, 512))
+#     # print(model(x))
+#     summary(model, (1, 512), batch_size=225)

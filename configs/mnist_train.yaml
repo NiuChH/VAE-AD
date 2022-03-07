@@ -9,35 +9,35 @@ seed: 1234
 model:
   name: VT_AE_Detector
   vt_ae:
-    image_size: 512
-    patch_size: 64
-    dim: 512
+    image_size: 28
+    patch_size: 4
+    dim: 28
     depth: 6
     heads: 8
-    mlp_dim: 1024
+    mlp_dim: 256
   mdn:
-    input_dim: 512
-    out_dim: 512
+    input_dim: 28
+    out_dim: 28
     layer_size: 512
-    coefs: 150
+    coefs: 20
   lambda_mse: 5.
   lambda_ssim: 0.5
   ssim:
-    window_size: 11
+    window_size: 4
     size_average: !!bool True
 
 logger_name: AD-logger
 
 dataset:
-  name: mvtec
-  root: "datasets/mvtec_anomaly_detection"
-  batch_size: 8
-  product: zipper
+  name: mnist
+  root: "datasets"
+  batch_size: 64
+  product: 8
   load_train: !!bool True
   load_test: !!bool False
   use_cache: !!bool False
   cache_dir: "datasets/processed"
-  patch_size: 64
+  patch_size: 4
 
 train:
   epochs: 5

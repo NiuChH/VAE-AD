@@ -8,7 +8,6 @@ seed: 1234
 
 model:
   name: VT_AE_Detector
-  load_model: !!bool True
   load_path: datasets/model.pth
 
 logger_name: AD-logger
