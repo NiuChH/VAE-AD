@@ -12,10 +12,7 @@ class MNIST_AD:
     def __init__(self, ds_config):
         batch_size = ds_config.batch_size
         transform = torchvision.transforms.Compose([
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize(
-                (0.1307,), (0.3081,))
-        ])
+            torchvision.transforms.ToTensor()])
         if ds_config.load_train:
             train_ds = torchvision.datasets.MNIST(ds_config.root, train=True, download=True)
             train_normal = train_ds.data[train_ds.targets == ds_config.product]
