@@ -11,14 +11,14 @@ model:
   vt_ae:
     image_size: 28
     patch_size: 4
-    dim: 28
+    dim: 128
     depth: 6
     heads: 8
     mlp_dim: 256
   mdn:
-    input_dim: 28
-    out_dim: 28
-    layer_size: 512
+    input_dim: 128
+    out_dim: 128
+    layer_size: 128
     coefs: 20
   lambda_mse: 5.
   lambda_ssim: 0.5

@@ -27,7 +27,7 @@ class VT_AE_Detector(nn.Module):
 
     def forward(self, x, test=False):
         vector, reconstructions = self.vt_ae(x)
-        pi, mu, sigma = self.gmm(vector)
+        pi, mu, sigma = self.gmm(vector)  # vector: b,H*W/p^2,vt_ae.dim
         self.result_cache.update({
             'vector': vector, 'reconstructions': reconstructions,
             'pi': pi, 'mu': mu, 'sigma': sigma
