@@ -84,7 +84,8 @@ def evaluate_auc(config, data, model, writer):
             loss = model.forward(img_b.to(config.dev), test=True)
             ano_score = model.get_ano_score()
             all_score_ls[label].append(ano_score)
-
+            if config.dataset.name.lower() != 'mvtec':
+                continue
             ano_loc = model.get_ano_loc_score()
             m = torch.nn.UpsamplingBilinear2d((512, 512))
             norm_score = ano_loc.reshape(-1, 1, 512 // patch_size, 512 // patch_size)
@@ -96,9 +97,12 @@ def evaluate_auc(config, data, model, writer):
                 plot(img_b, mask_b, score_map[0][0])
 
     # PRO Score
-    loc_np = np.asarray(loc_ls).flatten()
-    mask_np = np.asarray(mask_ls).flatten()
-    PRO_score = roc_auc_score(mask_np, loc_np, max_fpr=0.3)
+    if config.dataset.name.lower() != 'mvtec':
+        PRO_score = 0.0
+    else:
+        loc_np = np.asarray(loc_ls).flatten()
+        mask_np = np.asarray(mask_ls).flatten()
+        PRO_score = roc_auc_score(mask_np, loc_np, max_fpr=0.3)
 
     # Image Anomaly Classification Score (AUC)
     roc_scores = np.concatenate(all_score_ls)

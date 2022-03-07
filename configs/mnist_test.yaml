@@ -1,28 +1,30 @@
-exp_dir: "/content/drive/MyDrive/10708_exp/VT"
-exp_name: MVT-zipper
+exp_dir: exp
+exp_name: debug_exp
 repeat_id: 0
-comment: debug
+comment: test
 log_level: INFO
 run_id: 1
 seed: 1234
 
 model:
   name: VT_AE_Detector
+  load_path: model_path
 
 logger_name: AD-logger
 
 dataset:
-  name: mvtec
-  root: "/content"
-  batch_size: 8
-  product: zipper
-  load_train: !!bool True
-  load_test: !!bool False
+  name: mnist
+  root: "datasets"
+  batch_size: 1
+  product: 8
+  load_train: !!bool False
+  load_test: !!bool True
   use_cache: !!bool False
   cache_dir: "datasets/processed"
+  patch_size: 4
 
 train:
-  epochs: 400
+  epochs: 5
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:
