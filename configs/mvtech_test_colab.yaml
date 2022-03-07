@@ -1,5 +1,5 @@
 exp_dir: /content/drive/MyDrive/10708_exp/VT
-exp_name: MVT-bottle
+exp_name: MVT-zipper
 repeat_id: 0
 comment: test
 log_level: INFO
@@ -9,7 +9,7 @@ seed: 1234
 model:
   name: VT_AE_Detector
   load_model: !!bool True
-  load_path: "/content/drive/MyDrive/10708_exp/VT/MVT-bottle/VT_AE_Detector_debug_Feb-23-10-27-00/models/model.pth"
+  load_path: "/content/drive/MyDrive/10708_exp/VT/MVT-zipper/VT_AE_Detector_debug_Feb-23-10-27-00/models/model.pth"
 
 logger_name: AD-logger
 
@@ -17,7 +17,7 @@ dataset:
   name: mvtec
   root: "/content"
   batch_size: 1
-  product: bottle
+  product: zipper
   load_train: !!bool False
   load_test: !!bool True
   use_cache: !!bool False

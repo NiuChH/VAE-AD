@@ -17,7 +17,7 @@ dataset:
   name: mvtec
   root: "datasets/mvtec_anomaly_detection"
   batch_size: 1
-  product: bottle
+  product: zipper
   load_train: !!bool False
   load_test: !!bool True
   use_cache: !!bool False

@@ -1,5 +1,5 @@
 exp_dir: /content/drive/MyDrive/10708_exp/VT
-exp_name: MVT-bottle
+exp_name: MVT-zipper
 repeat_id: 0
 comment: debug
 log_level: INFO
@@ -15,7 +15,7 @@ dataset:
   name: mvtec
   root: "/content"
   batch_size: 8
-  product: bottle
+  product: zipper
   load_train: !!bool True
   load_test: !!bool False
   use_cache: !!bool False

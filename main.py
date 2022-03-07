@@ -24,6 +24,8 @@ def fit(config, data, model, optimizer, scheduler, writer):
         batch_loss_ls = []
         time_st = time.time()
         for x_batch, _ in data.train_loader:
+            if x_batch.size(1) == 1:
+                x_batch = torch.stack([x_batch, x_batch, x_batch], dim=1).squeeze(2)
             x_batch = x_batch.to(dev)
             model.zero_grad()
             loss = model.forward(x_batch)
@@ -123,16 +125,16 @@ def test_main(config):
 
 
 if __name__ == "__main__":
-    args = parse_arguments('configs/mvtech_test.yaml')
-    config_dict = get_config(args.config_file)
-    process_config(config_dict)
-    set_seed_and_logger(config_dict)
-    # noinspection PyTypeChecker
-    test_main(config_dict)
-
-    # args = parse_arguments('configs/mvtech_train.yaml')
+    # args = parse_arguments('configs/mvtech_test.yaml')
     # config_dict = get_config(args.config_file)
     # process_config(config_dict)
     # set_seed_and_logger(config_dict)
     # # noinspection PyTypeChecker
-    # train_main(config_dict)
+    # test_main(config_dict)
+
+    args = parse_arguments('configs/mvtech_train.yaml')
+    config_dict = get_config(args.config_file)
+    process_config(config_dict)
+    set_seed_and_logger(config_dict)
+    # noinspection PyTypeChecker
+    train_main(config_dict)

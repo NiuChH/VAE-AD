@@ -260,24 +260,3 @@ class Mvtec:
             self.test_anom_loader = torch.utils.data.DataLoader(test_anom, batch_size=batch_size, shuffle=False)
             self.test_norm_loader = torch.utils.data.DataLoader(test_normal, batch_size=batch_size, shuffle=False)
             self.validation_loader = torch.utils.data.DataLoader(val_set, batch_size=batch_size, shuffle=False)
-
-
-class MNIST_AD:
-    def __init__(self, ds_config):
-        ...
-
-
-if __name__ == "__main__":
-
-    root = "datasets/mvtec_anomaly_detection"
-    # print('======== All Normal Data ============')
-    # Train_data(root, 'all')
-    # print('======== All Anomaly Data ============')
-    # Test_anom_data(root,'all')    
-
-    train = Mvtec(1, root, 'bottle')
-    for i, j in train.test_anom_loader:
-        print(i.shape)
-        plt.imshow(i.squeeze(0).permute(1, 2, 0))
-        plt.show()
-        break
