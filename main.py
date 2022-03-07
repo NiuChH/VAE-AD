@@ -34,8 +34,9 @@ def fit(config, data, model, optimizer, scheduler, writer):
             loss.backward()
             optimizer.step()
         epoch_loss = np.mean(batch_loss_ls)
-        model.write_hist(writer, epoch)
-        model.write_reconstructions(writer, epoch)
+        if epoch % 5 == 4:
+            model.write_hist(writer, epoch)
+            model.write_reconstructions(writer, epoch)
         writer.add_scalar('Mean Epoch loss', epoch_loss, epoch)
         writer.close()
 

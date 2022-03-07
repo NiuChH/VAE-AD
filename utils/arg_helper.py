@@ -57,7 +57,8 @@ def process_config(config):
         config.result_dir = os.path.join(config.save_dir, 'results')
     if 'model_save_dir' not in config:
         config.model_save_dir = os.path.join(config.save_dir, 'models')
-    config.tensorboard_dir = os.path.join(config.save_dir, 'runs')
+    if 'tensorboard_dir' not in config:
+        config.tensorboard_dir = os.path.join(config.save_dir, 'runs')
 
     # snapshot hyper-parameters and code
     mkdir(config.exp_dir)
