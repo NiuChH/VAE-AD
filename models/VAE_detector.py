@@ -35,7 +35,7 @@ class VAE_Detector(nn.Module):
                 [32, 32, 4, 2],  # 11, 11, 32
                 [32, 64, 3, 1],  # 9, 9, 64
                 [64, 64, 3, 2],  # 4, 4, 64
-                [64, 64, 4, 1],  # 1, 1, 64
+                [64, emb_dim, 4, 1],  # 1, 1, emb_dim
             ]
         else:
             raise NotImplementedError()
@@ -58,7 +58,6 @@ class VAE_Detector(nn.Module):
             decoder_cnns.append(nn.ReLU(True))
         self.decoder = nn.Sequential(*decoder_cnns[:-2])
 
-        self.emb_dim = 64
         self.mu_z_given_x = nn.Sequential(nn.Linear(emb_dim, param_mlp_hidden),
                                           nn.ReLU(True), nn.Linear(param_mlp_hidden, latent_dim))
         self.logvar_z_given_x = nn.Sequential(nn.Linear(emb_dim, param_mlp_hidden),

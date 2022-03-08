@@ -131,17 +131,17 @@ def test_main(config):
 
 
 if __name__ == "__main__":
-    args = parse_arguments('configs/mnist_test.yaml')
-    config_dict = get_config(args.config_file)
-    process_config(config_dict)
-    set_seed_and_logger(config_dict)
-    # noinspection PyTypeChecker
-    test_main(config_dict)
-
-    # args = parse_arguments('configs/mvtech_train.yaml')
-    # args = parse_arguments('configs/mnist_train_vae.yaml')
+    # args = parse_arguments('configs/mnist_test.yaml')
     # config_dict = get_config(args.config_file)
     # process_config(config_dict)
     # set_seed_and_logger(config_dict)
     # # noinspection PyTypeChecker
-    # train_main(config_dict)
+    # test_main(config_dict)
+
+    # args = parse_arguments('configs/mvtech_train.yaml')
+    args = parse_arguments('configs/mnist_train_vae.yaml')
+    config_dict = get_config(args.config_file)
+    process_config(config_dict)
+    set_seed_and_logger(config_dict)
+    # noinspection PyTypeChecker
+    train_main(config_dict)
