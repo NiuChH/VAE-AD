@@ -10,10 +10,10 @@ import torch.nn as nn
 
 ## Decoder ##
 
-class decoder2(nn.Module):
+class decoder512(nn.Module):
     def __init__(self, in_channels):
-        super(decoder2, self).__init__()
-        self.decoder2 = nn.Sequential(
+        super(decoder512, self).__init__()
+        self.decoder = nn.Sequential(
             nn.ConvTranspose2d(in_channels=in_channels, out_channels=16, kernel_size=3, stride=2, padding=1),
             # In b, 8, 8, 8 >> out b, 16, 15, 15
             nn.BatchNorm2d(16, affine=True),
@@ -35,7 +35,7 @@ class decoder2(nn.Module):
         )
 
     def forward(self, x):
-        recon = self.decoder2(x)
+        recon = self.decoder(x)
         return recon
 
 

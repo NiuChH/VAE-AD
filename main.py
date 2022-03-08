@@ -24,8 +24,6 @@ def fit(config, data, model, optimizer, scheduler, writer):
         batch_loss_ls = []
         time_st = time.time()
         for x_batch, _ in data.train_loader:
-            if x_batch.size(1) == 1:
-                x_batch = torch.stack([x_batch, x_batch, x_batch], dim=1).squeeze(2)
             x_batch = x_batch.to(dev)
             model.zero_grad()
             loss = model.forward(x_batch)
@@ -34,7 +32,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
             loss.backward()
             optimizer.step()
         epoch_loss = np.mean(batch_loss_ls)
-        if epoch % 5 == 4:
+        if epoch % 5 == 0:
             model.write_hist(writer, epoch)
             model.write_reconstructions(writer, epoch)
         writer.add_scalar('Mean Epoch loss', epoch_loss, epoch)
@@ -79,8 +77,6 @@ def evaluate_auc(config, data, model, writer):
     mask_ls = []
     for dl, label in zip((data.test_norm_loader, data.test_anom_loader), (0, 1)):
         for idx, (img_b, mask_b) in enumerate(dl):
-            if img_b.size(1) == 1:
-                img_b = torch.stack([img_b, img_b, img_b], dim=1).squeeze(2)
             loss = model.forward(img_b.to(config.dev), test=True)
             ano_score = model.get_ano_score()
             all_score_ls[label].append(ano_score)
@@ -143,7 +139,7 @@ if __name__ == "__main__":
     # test_main(config_dict)
 
     # args = parse_arguments('configs/mvtech_train.yaml')
-    args = parse_arguments('configs/mnist_train.yaml')
+    args = parse_arguments('configs/mnist_train_vae.yaml')
     config_dict = get_config(args.config_file)
     process_config(config_dict)
     set_seed_and_logger(config_dict)

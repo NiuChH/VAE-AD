@@ -7,7 +7,6 @@ run_id: 1
 seed: 1234
 
 model:
-  name: VT_AE_Detector
   load_path: model_path
 
 logger_name: AD-logger
@@ -22,6 +21,9 @@ dataset:
   use_cache: !!bool False
   cache_dir: "datasets/processed"
   patch_size: 4
+
+test:
+  do_pro: !!bool False
 
 train:
   epochs: 5

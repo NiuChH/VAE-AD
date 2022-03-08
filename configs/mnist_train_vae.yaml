@@ -7,20 +7,27 @@ run_id: 1
 seed: 1234
 
 model:
-  load_path: model_path
+  name: VAE_Detector
+  image_size: 28
+  in_channels: 1
+  latent_dim: 128
+  param_mlp_hidden: 128
+  emb_dim: 64
+  x_emb_dim: 32
+
 
 logger_name: AD-logger
 
 dataset:
-  name: mvtec
-  root: "datasets/mvtec_anomaly_detection"
-  batch_size: 1
-  product: zipper
-  load_train: !!bool False
-  load_test: !!bool True
+  name: mnist
+  root: "datasets"
+  batch_size: 64
+  product: 8
+  load_train: !!bool True
+  load_test: !!bool False
   use_cache: !!bool False
   cache_dir: "datasets/processed"
-  patch_size: 64
+  patch_size: 4
 
 train:
   epochs: 5

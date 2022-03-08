@@ -2,6 +2,7 @@ import easydict
 import torchvision
 from torch import nn
 import torch.nn.functional as F
+import torch
 
 import pytorch_ssim
 from models.VT_AE import mdn1
@@ -26,6 +27,8 @@ class VT_AE_Detector(nn.Module):
         })
 
     def forward(self, x, test=False):
+        if x.size(1) == 1:
+            x = torch.stack([x, x, x], dim=1).squeeze(2)
         vector, reconstructions = self.vt_ae(x)
         pi, mu, sigma = self.gmm(vector)  # vector: b,H*W/p^2,vt_ae.dim
         self.result_cache.update({

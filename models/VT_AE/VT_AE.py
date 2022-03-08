@@ -32,7 +32,7 @@ class VT_AE(nn.Module):
             mlp_dim=mlp_dim)
         out_dim_caps = 512
         if image_size == 512:
-            self.decoder = M.decoder2(out_dim_caps//64)
+            self.decoder = M.decoder512(out_dim_caps // 64)
         elif image_size == 28:
             self.decoder = M.decoder28(out_dim_caps//64)
         else:
