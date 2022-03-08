@@ -90,11 +90,15 @@ class VAE_Detector(nn.Module):
         logvar_x = self.result_cache.logvar_x
         reconstructions = sample_gaussian(mu_x, logvar_x)
         writer.add_image(
-            'Reconstructed Image',
+            'Reconstructed Sample',
             torchvision.utils.make_grid(reconstructions),
             epoch, dataformats='CHW')
+        writer.add_image(
+            'Mean',
+            torchvision.utils.make_grid(mu_x),
+            epoch, dataformats='CHW')
 
-    def forward(self, x):
+    def forward(self, x, *args, **kwargs):
         emb = self.encoder(x)
         mu_z = self.mu_z_given_x(emb)
         logvar_z = self.logvar_z_given_x(emb)
