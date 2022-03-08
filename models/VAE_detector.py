@@ -22,15 +22,25 @@ class VAE_Detector(nn.Module):
         param_mlp_hidden = config_model.param_mlp_hidden
         emb_dim = config_model.emb_dim
         x_emb_dim = config_model.x_emb_dim
+
+        # H_out = (H-F+2P)/S+1
         if image_size == 512:
             cnn_params = [
+                [in_channels, 8, 11, 1],  # 502
+                [8, 16, 6, 1],  # 497
+                [16, 32, 9, 2],  # 245
+                [32, 32, 7, 5, 1],  # 49
+                [32, 16, 9, 3, 1],  # 15
+                [16, 16, 3, 2, 1],  # 8
+                [16, 32, 4, 2],  # 3
+                [32, emb_dim, 3, 1],  # 1
             ]
         elif image_size == 28:
             assert in_channels == 1
             # 784 - [32C3-32C3-32C5S2] - [64C3-64C3-64C5S2] - 128 - 10
             # ref: https://www.kaggle.com/cdeotte/how-to-choose-cnn-architecture-mnist
             cnn_params = [
-                [1, 32, 3, 1],  # 26, 26, 32
+                [in_channels, 32, 3, 1],  # 26, 26, 32
                 [32, 32, 3, 1],  # 24, 24, 32
                 [32, 32, 4, 2],  # 11, 11, 32
                 [32, 64, 3, 1],  # 9, 9, 64
@@ -53,7 +63,7 @@ class VAE_Detector(nn.Module):
         cnn_params[-1][1] = latent_dim
         decoder_cnns = []
         for arg in reversed(cnn_params):
-            decoder_cnns.append(nn.ConvTranspose2d(arg[1], arg[0], arg[2], arg[3]))
+            decoder_cnns.append(nn.ConvTranspose2d(arg[1], arg[0], *arg[2:]))
             decoder_cnns.append(nn.BatchNorm2d(arg[0]))
             decoder_cnns.append(nn.ReLU(True))
         self.decoder = nn.Sequential(*decoder_cnns[:-2])
