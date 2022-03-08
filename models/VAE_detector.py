@@ -63,8 +63,12 @@ class VAE_Detector(nn.Module):
         self.logvar_z_given_x = nn.Sequential(nn.Linear(emb_dim, param_mlp_hidden),
                                               nn.ReLU(True), nn.Linear(param_mlp_hidden, latent_dim))
 
-        self.mu_x_given_z = nn.Linear(x_emb_dim, in_channels)
-        self.logvar_x_given_z = nn.Linear(x_emb_dim, in_channels)
+        # self.mu_x_given_z = nn.Linear(x_emb_dim, in_channels)
+        # self.logvar_x_given_z = nn.Linear(x_emb_dim, in_channels)
+        self.mu_x_given_z = nn.Sequential(nn.Linear(x_emb_dim, param_mlp_hidden),
+                                          nn.ReLU(True), nn.Linear(param_mlp_hidden, in_channels))
+        self.logvar_x_given_z = nn.Sequential(nn.Linear(x_emb_dim, param_mlp_hidden),
+                                              nn.ReLU(True), nn.Linear(param_mlp_hidden, in_channels))
 
         self.result_cache = easydict.EasyDict({
             'mu_z': None, 'logvar_z': None, 'mu_x': None, 'logvar_x': None, 'nll_pixel': None
@@ -109,8 +113,8 @@ class VAE_Detector(nn.Module):
         mu_x = self.mu_x_given_z(x_emb).permute(0, 3, 1, 2)
         logvar_x = self.logvar_x_given_z(x_emb).permute(0, 3, 1, 2)
 
-        nll_pixel = 0.5*logvar_x + 0.5 * (x - mu_x)**2 / logvar_x.exp()
-        kl_qp_pixel = 0.5*(logvar_z.exp() + mu_z.pow(2) - 1. - logvar_z)
+        nll_pixel = 0.5 * logvar_x + 0.5 * (x - mu_x) ** 2 / logvar_x.exp()
+        kl_qp_pixel = 0.5 * (logvar_z.exp() + mu_z.pow(2) - 1. - logvar_z)
 
         nll = nll_pixel.sum() / x.shape[0]
         kl_qp = kl_qp_pixel.sum() / x.shape[0]
