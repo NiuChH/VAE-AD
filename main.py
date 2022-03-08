@@ -8,6 +8,7 @@ from easydict import EasyDict as edict
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 from tensorboardX import SummaryWriter
 
+from models import VT_AE_Detector, VAE_Detector
 from utils.arg_helper import set_seed_and_logger, get_config, parse_arguments, process_config, edict2dict
 from utils.load_helper import log_model_params, get_model, load_data
 from utils.utility_fun import Filter, plot
@@ -82,11 +83,17 @@ def evaluate_auc(config, data, model, writer):
             all_score_ls[label].append(ano_score)
             if config.dataset.name.lower() != 'mvtec':
                 continue
-            ano_loc = model.get_ano_loc_score()
-            m = torch.nn.UpsamplingBilinear2d((512, 512))
-            norm_score = ano_loc.reshape(-1, 1, 512 // patch_size, 512 // patch_size)
-            score_map = m(torch.tensor(norm_score))
-            score_map = Filter(score_map, type=0)
+            if isinstance(model, VT_AE_Detector):
+                ano_loc = model.get_ano_loc_score()
+                m = torch.nn.UpsamplingBilinear2d((512, 512))
+                norm_score = ano_loc.reshape(-1, 1, 512 // patch_size, 512 // patch_size)
+                score_map = m(torch.tensor(norm_score))
+                score_map = Filter(score_map, type=0)
+            elif isinstance(model, VAE_Detector):
+                ano_loc = model.get_ano_loc_score()
+                score_map = Filter(ano_loc)
+            else:
+                continue
             loc_ls.append(score_map)  # Storing all score maps
             mask_ls.append(mask_b.squeeze(0).squeeze(0).cpu().numpy())
             if idx % 5 == 0:
