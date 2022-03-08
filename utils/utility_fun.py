@@ -57,7 +57,12 @@ def Binarization(mask, thres=0., type=0):
 
 def plot(image, grnd_truth, score):
     plt.subplot(131)
-    plt.imshow(image[0].permute(1, 2, 0))
+    image = image[0]
+    if image.shape[0] == 1:
+        image = image[0]
+    else:
+        image = image.permute(1, 2, 0)
+    plt.imshow(image)
     plt.subplot(132)
     plt.imshow(grnd_truth.squeeze(0).squeeze(0))
     plt.xlabel('ground truth')

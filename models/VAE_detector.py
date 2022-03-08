@@ -2,6 +2,7 @@ import easydict
 import torch
 import torchvision
 from torch import nn
+import numpy as np
 import torch.nn.functional as F
 
 
@@ -122,8 +123,16 @@ class VAE_Detector(nn.Module):
         x_emb = x_emb.permute(0, 2, 3, 1)
         mu_x = self.mu_x_given_z(x_emb).permute(0, 3, 1, 2)
         logvar_x = self.logvar_x_given_z(x_emb).permute(0, 3, 1, 2)
+        sigma_x = torch.exp(logvar_x * 0.5)
 
-        nll_pixel = 0.5 * logvar_x + 0.5 * (x - mu_x) ** 2 / logvar_x.exp()
+        # a_x = mu_x.exp()
+        # b_x = logvar_x.exp()
+        # nll_pixel = (a_x - 1.) * torch.log(x + 1e-8) + (b_x - 1.) * torch.log(1.-x + 1e-8) \
+        #     + torch.lgamma(a_x + b_x) - torch.lgamma(a_x) - torch.lgamma(b_x)
+
+        nll_pixel = 0.5 * logvar_x + 0.5 * (x - mu_x) ** 2 / sigma_x ** 2
+        # + torch.log(torch.erf((1. - mu_x) / sigma_x / np.sqrt(2.))
+        #             - torch.erf((0. - mu_x) / sigma_x / np.sqrt(2.)))
         kl_qp_pixel = 0.5 * (logvar_z.exp() + mu_z.pow(2) - 1. - logvar_z)
 
         nll = nll_pixel.sum() / x.shape[0]
