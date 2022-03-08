@@ -12,8 +12,8 @@ model:
   in_channels: 1
   latent_dim: 128
   param_mlp_hidden: 128
-  emb_dim: 64
-  x_emb_dim: 32
+  emb_dim: 128
+  x_emb_dim: 64
 
 
 logger_name: AD-logger
@@ -30,11 +30,11 @@ dataset:
   patch_size: 4
 
 train:
-  epochs: 5
+  epochs: 300
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:
-    lr: 0.0001
+    lr: 0.01
     betas: [ 0.9, 0.999 ]
     weight_decay: 0.0001
     amsgrad: !!bool False

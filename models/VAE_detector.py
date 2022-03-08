@@ -125,4 +125,7 @@ class VAE_Detector(nn.Module):
         return loss
 
     def get_ano_score(self):
+        return self.loss_cache.nll.detach().cpu().numpy()
+
+    def get_ano_loc_score(self):
         return self.result_cache.nll_pixel.detach().cpu().numpy()
