@@ -7,6 +7,7 @@ run_id: 1
 seed: 1234
 
 model:
+  name: test
   load_path: model_path
 
 logger_name: AD-logger
