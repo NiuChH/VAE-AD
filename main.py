@@ -1,11 +1,12 @@
 import logging
 import os
+import pickle
 import time
 
 import numpy as np
 import torch.optim.lr_scheduler
 from easydict import EasyDict as edict
-from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
+from sklearn.metrics import roc_auc_score, precision_recall_curve, auc, roc_curve
 from tensorboardX import SummaryWriter
 
 from models import VT_AE_Detector, VAE_Detector
@@ -110,6 +111,10 @@ def evaluate_auc(config, data, model, writer):
     # Image Anomaly Classification Score (AUC)
     roc_scores = np.concatenate(all_score_ls)
     roc_targets = np.concatenate((np.zeros(len(all_score_ls[0])), np.ones(len(all_score_ls[1]))))
+
+    fpr, tpr, thresholds = roc_curve(roc_targets, roc_scores)
+    pickle.dump((fpr, tpr, thresholds), open(os.path.join(config.save_dir, 'roc.pickle'), 'wb'))
+
     AUC_Score_total = roc_auc_score(roc_targets, roc_scores)
 
     # AUC Precision Recall Curve

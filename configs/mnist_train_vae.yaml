@@ -10,10 +10,10 @@ model:
   name: VAE_Detector
   image_size: 28
   in_channels: 1
-  latent_dim: 128
-  param_mlp_hidden: 128
-  emb_dim: 128
-  x_emb_dim: 64
+  latent_dim: 32
+  param_mlp_hidden: 32
+  emb_dim: 32
+  x_emb_dim: 32
 
 
 logger_name: AD-logger
