@@ -25,6 +25,11 @@ def fit(config, data, model, optimizer, scheduler, writer):
     for epoch in range(config.train.epochs):
         batch_loss_ls = []
         time_st = time.time()
+        if config.use_tqdm:
+            from tqdm.notebook import tqdm
+            dl = tqdm(data.train_loader)
+        else:
+            dl = data.train_loader
         for x_batch, _ in data.train_loader:
             x_batch = x_batch.to(dev)
             model.zero_grad()
@@ -153,8 +158,10 @@ if __name__ == "__main__":
     # args = parse_arguments('configs/mvtech_train.yaml')
     args = parse_arguments('configs/mnist_train_vae.yaml')
     # args = parse_arguments('configs/mvtech_train_vae.yaml')
+
     config_dict = get_config(args.config_file)
     process_config(config_dict)
     set_seed_and_logger(config_dict)
+    config_dict.use_tqdm = False
     # noinspection PyTypeChecker
     train_main(config_dict)
