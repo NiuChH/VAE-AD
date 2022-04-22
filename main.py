@@ -124,6 +124,7 @@ def evaluate_auc(config, data, model, writer):
 
     # AUC Precision Recall Curve
     precision, recall, thres = precision_recall_curve(roc_targets, roc_scores)
+    pickle.dump((precision, recall, thres), open(os.path.join(config.save_dir, 'pr.pickle'), 'wb'))
     AUC_PR = auc(recall, precision)
 
     return PRO_score, AUC_Score_total, AUC_PR

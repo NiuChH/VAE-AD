@@ -7,13 +7,24 @@ run_id: 1
 seed: 1234
 
 model:
-  name: VAE_Detector
-  image_size: 512
-  in_channels: 1
-  latent_dim: 64
-  param_mlp_hidden: 128
-  emb_dim: 64
-  x_emb_dim: 32
+  name: VT_AE_Detector
+  vt_ae:
+    image_size: 512
+    patch_size: 4
+    dim: 128
+    depth: 6
+    heads: 8
+    mlp_dim: 256
+  mdn:
+    input_dim: 128
+    out_dim: 128
+    layer_size: 128
+    coefs: 20
+  lambda_mse: 5.
+  lambda_ssim: 0.5
+  ssim:
+    window_size: 4
+    size_average: !!bool True
 
 
 logger_name: AD-logger

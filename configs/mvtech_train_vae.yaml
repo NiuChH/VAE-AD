@@ -7,7 +7,7 @@ run_id: 1
 seed: 1234
 
 model:
-  name: VAE_Detector
+  name: VT_AE_Detector
   image_size: 512
   in_channels: 1
   latent_dim: 128
