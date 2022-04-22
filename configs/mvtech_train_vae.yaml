@@ -7,7 +7,7 @@ run_id: 1
 seed: 1234
 
 model:
-  name: VT_AE_Detector
+  name: VAE_Detector
   image_size: 512
   in_channels: 1
   latent_dim: 128
@@ -30,7 +30,7 @@ dataset:
   patch_size: 64
 
 train:
-  epochs: 300
+  epochs: 100
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:

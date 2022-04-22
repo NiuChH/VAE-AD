@@ -10,7 +10,7 @@ model:
   name: VT_AE_Detector
   vt_ae:
     image_size: 512
-    patch_size: 4
+    patch_size: 64
     dim: 128
     depth: 6
     heads: 8
@@ -41,7 +41,7 @@ dataset:
   patch_size: 64
 
 train:
-  epochs: 300
+  epochs: 100
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:
