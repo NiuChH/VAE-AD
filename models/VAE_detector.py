@@ -29,8 +29,8 @@ class VAE_Detector(nn.Module):
             cnn_params = [
                 # in_dim, out_dim, kernel_size, stride, (padding)
                 [in_channels, 4, 8, 2],  # 253
-                [4, 8, 5, 2],  # 124
-                [8, 16, 4, 2],  # 61
+                [4, 8, 5, 2],  # 125
+                [8, 16, 5, 2],  # 61
                 [16, 32, 7, 2],  # 28
                 [32, 32, 3, 1],  # 26
                 [32, 32, 3, 1],  # 24
@@ -64,7 +64,11 @@ class VAE_Detector(nn.Module):
         else:
             raise NotImplementedError()
         encoder_cnns = []
+        cur_size = image_size
         for arg in cnn_params:
+            new_size = (cur_size - arg[2]) / arg[3] + 1
+            print(f'in {cur_size}, out {new_size}')
+            cur_size = new_size
             encoder_cnns.append(nn.Conv2d(*arg))
             encoder_cnns.append(nn.BatchNorm2d(arg[1]))
             encoder_cnns.append(nn.ReLU(True))
