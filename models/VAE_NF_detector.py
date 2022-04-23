@@ -149,7 +149,8 @@ class VAE_NF_Detector(nn.Module):
         mean_log_p = torch.mean(log_p)
         loss = mean_log_q - mean_log_p
         self.result_cache.update({
-            'z': z.mean(dim=1)
+            'z': z.mean(dim=1),
+            'loc': -log_p.mean(dim=1)
         })
         self.loss_cache.update({
             'mean_log_q': mean_log_q, 'mean_log_p': mean_log_p, 'loss': loss,
@@ -158,7 +159,7 @@ class VAE_NF_Detector(nn.Module):
         return loss
 
     def get_ano_score(self):
-        return -self.loss_cache.mean_log_p.detach().cpu().numpy()
+        return self.loss_cache.loss.detach().cpu().numpy()
 
     def get_ano_loc_score(self):
-        pass
+        return self.result_cache.loc.detach().cpu().numpy()

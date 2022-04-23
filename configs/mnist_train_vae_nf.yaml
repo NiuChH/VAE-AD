@@ -8,29 +8,28 @@ seed: 1234
 
 model:
   name: VAE_NF_Detector
-  image_size: 28
+  image_size: 512
   in_channels: 1
-  latent_dim: 32
-  param_mlp_hidden: 32
-  emb_dim: 32
-  x_emb_dim: 32
-  num_samples: 40
-  flow_type: Planar
-  n_flows: 40
-
+  latent_dim: 64
+  param_mlp_hidden: 64
+  emb_dim: 64
+  x_emb_dim: 64
+  num_samples: 4
+  flow_type: RealNVP
+  n_flows: 20
 
 logger_name: AD-logger
 
 dataset:
-  name: mnist
-  root: "datasets"
-  batch_size: 64
-  product: 8
+  name: mvtec
+  root: "datasets/mvtec_anomaly_detection"
+  batch_size: 4
+  product: zipper
   load_train: !!bool True
   load_test: !!bool False
   use_cache: !!bool False
   cache_dir: "datasets/processed"
-  patch_size: 4
+  patch_size: 64
 
 train:
   epochs: 100
