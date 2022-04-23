@@ -10,13 +10,13 @@ model:
   name: VAE_NF_Detector
   image_size: 512
   in_channels: 1
-  latent_dim: 128
-  param_mlp_hidden: 128
-  emb_dim: 128
+  latent_dim: 64
+  param_mlp_hidden: 64
+  emb_dim: 64
   x_emb_dim: 64
-  num_samples: 40
-  flow_type: Planar
-  n_flows: 40
+  num_samples: 4
+  flow_type: RealNVP
+  n_flows: 20
 
 logger_name: AD-logger
 
