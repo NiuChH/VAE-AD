@@ -66,7 +66,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
 
 
 def train_main(config):
-    model = get_model(config.model, train=True)
+    model = get_model(config.model, train=True, device=config.dev)
     log_model_params(config, model)
     optimizer = torch.optim.Adam(model.parameters(), **config.train.optim)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=config.train.lr_dacey)
