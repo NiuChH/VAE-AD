@@ -106,7 +106,7 @@ def evaluate_auc(config, data, model, writer):
                 plot(img_b, mask_b, score_map[0][0])
 
     # PRO Score
-    if config.dataset.name.lower() != 'mvtec':
+    if config.dataset.name.lower() != 'mvtec' or len(loc_ls) == 0:
         PRO_score = 0.0
     else:
         loc_np = np.asarray(loc_ls).flatten()
