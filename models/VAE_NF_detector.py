@@ -98,6 +98,8 @@ class VAE_NF_Detector(nn.Module):
             decoder_cnns.append(nn.BatchNorm2d(arg[0]))
             decoder_cnns.append(nn.ReLU(True))
         decoder_cnns.append(nn.Conv2d(x_emb_dim, 2*in_channels, 1, 1))
+        nn.init.zeros_(decoder_cnns[-1].weight)
+        nn.init.zeros_(decoder_cnns[-1].bias)
         decoder_nn = nn.Sequential(*decoder_cnns)
 
         self.encoder = nf.distributions.NNDiagGaussian(encoder_nn)
