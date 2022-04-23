@@ -33,7 +33,6 @@ class VAE_NF_Detector(nn.Module):
         self.num_samples = config_model.num_samples
 
         n_bottleneck = latent_dim
-        emb_dim = n_bottleneck * 2
 
         # H_out = (H-F+2P)/S+1
         if image_size == 512:
@@ -87,6 +86,7 @@ class VAE_NF_Detector(nn.Module):
             encoder_cnns.append(nn.ReLU(True))
         encoder_cnns = encoder_cnns[:-2]
         encoder_cnns.append(nn.Flatten())
+        encoder_cnns.append(nf.nets.MLP([emb_dim, 2 * n_bottleneck], init_zeros=True))
         encoder_nn = nn.Sequential(*encoder_cnns)
         # cnn_params[0] = [x_emb_dim] + list(cnn_params[0])[1:]
         # cnn_params[-1] = [latent_dim] + list(cnn_params[0])[1:]
@@ -110,8 +110,8 @@ class VAE_NF_Detector(nn.Module):
             b = torch.tensor(n_bottleneck // 2 * [0, 1] + n_bottleneck % 2 * [0], device=device)
             flows = []
             for i in range(n_flows):
-                s = nf.nets.MLP([n_bottleneck, n_bottleneck])
-                t = nf.nets.MLP([n_bottleneck, n_bottleneck])
+                s = nf.nets.MLP([n_bottleneck, n_bottleneck], init_zeros=True)
+                t = nf.nets.MLP([n_bottleneck, n_bottleneck], init_zeros=True)
                 if i % 2 == 0:
                     flows += [nf.flows.MaskedAffineFlow(b, t, s)]
                 else:
