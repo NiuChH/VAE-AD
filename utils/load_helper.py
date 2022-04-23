@@ -25,8 +25,8 @@ def log_model_params(config, model):
                 f"{'-' * max_string_len}")
 
 
-def get_model(config_model, **kwargs):
-    model = eval(config_model.name)(config_model, **kwargs)
+def get_model(config_model, device, **kwargs):
+    model = eval(config_model.name)(config_model, device=device, **kwargs)
     return model
 
 
