@@ -137,25 +137,26 @@ class VAE_NF_Detector(nn.Module):
         writer.add_scalar('kl_qp', self.loss_cache.kl_qp.item(), epoch)
         writer.add_scalar('loss', self.loss_cache.loss.item(), epoch)
 
+    def write_reconstructions(self, writer, epoch):
+        mu_x = self.result_cache.mu_x
+        # logvar_x = self.result_cache.logvar_x
+        # reconstructions = sample_gaussian(mu_x, logvar_x)
+        # writer.add_image(
+        #     'Reconstructed Sample',
+        #     torchvision.utils.make_grid(reconstructions.clamp(0., 1.)),
+        #     epoch, dataformats='CHW')
+        print('mu_x:', mu_x.shape, mu_x)
+        writer.add_image(
+            'Mean',
+            torchvision.utils.make_grid(mu_x.clamp(0., 1.)),
+            epoch, dataformats='CHW')
+
+
     def write_hist(self, writer, epoch):
         # writer.add_histogram('mu_z', self.result_cache.mu_z, epoch)
         # writer.add_histogram('logvar_z', self.result_cache.logvar_z, epoch)
         writer.add_histogram('mu_x', self.result_cache.mu_x, epoch)
         writer.add_histogram('logvar_x', self.result_cache.logvar_x, epoch)
-
-
-    def write_reconstructions(self, writer, epoch):
-        mu_x = self.result_cache.mu_x
-        logvar_x = self.result_cache.logvar_x
-        reconstructions = sample_gaussian(mu_x, logvar_x)
-        writer.add_image(
-            'Reconstructed Sample',
-            torchvision.utils.make_grid(reconstructions.clamp(0., 1.)),
-            epoch, dataformats='CHW')
-        writer.add_image(
-            'Mean',
-            torchvision.utils.make_grid(mu_x.clamp(0., 1.)),
-            epoch, dataformats='CHW')
 
     def forward(self, x, *args, **kwargs):
         # z, log_q, log_p = self.nfm(x, self.num_samples)
