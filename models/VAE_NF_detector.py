@@ -144,7 +144,7 @@ class VAE_NF_Detector(nn.Module):
             epoch, dataformats='CHW')
 
     def forward(self, x, *args, **kwargs):
-        z, log_q, log_p = self.nfm(x.view(x.size(0), 1, 28, 28), self.num_samples)
+        z, log_q, log_p = self.nfm(x, self.num_samples)
         mean_log_q = torch.mean(log_q)
         mean_log_p = torch.mean(log_p)
         loss = mean_log_q - mean_log_p
