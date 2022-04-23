@@ -157,7 +157,7 @@ if __name__ == "__main__":
     # test_main(config_dict)
 
     # args = parse_arguments('configs/mvtech_train.yaml')
-    args = parse_arguments('configs/mnist_train_vae.yaml')
+    args = parse_arguments('configs/mnist_train_vae_nf.yaml')
     # args = parse_arguments('configs/mvtech_train_vae.yaml')
 
     config_dict = get_config(args.config_file)

@@ -1,0 +1,42 @@
+exp_dir: exp
+exp_name: debug_exp
+repeat_id: 0
+comment: debug
+log_level: INFO
+run_id: 1
+seed: 1234
+
+model:
+  name: VAE_Detector
+  image_size: 28
+  in_channels: 1
+  latent_dim: 32
+  param_mlp_hidden: 32
+  emb_dim: 32
+  x_emb_dim: 32
+  num_samples: 40
+
+
+logger_name: AD-logger
+
+dataset:
+  name: mnist
+  root: "datasets"
+  batch_size: 64
+  product: 8
+  load_train: !!bool True
+  load_test: !!bool False
+  use_cache: !!bool False
+  cache_dir: "datasets/processed"
+  patch_size: 4
+
+train:
+  epochs: 100
+  save_all_models: !!bool False
+  lr_dacey: 0.95
+  optim:
+    lr: 0.0001
+    betas: [ 0.9, 0.999 ]
+    weight_decay: 0.0001
+    amsgrad: !!bool False
+
