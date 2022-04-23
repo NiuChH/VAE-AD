@@ -134,7 +134,7 @@ def test_main(config):
     save_dict = torch.load(config.model.load_path, map_location=config.dev)
     ori_config = edict(save_dict['config'])
 
-    model = get_model(ori_config.model, train=False).to(config.dev)
+    model = get_model(ori_config.model, device=config.dev, train=False).to(config.dev)
     log_model_params(config, model)
     model.load_state_dict(save_dict['model'])
     writer = SummaryWriter(logdir=config.tensorboard_dir)

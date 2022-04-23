@@ -18,7 +18,7 @@ def sample_gaussian(mu, logvar):
 
 class VAE_NF_Detector(nn.Module):
 
-    def __init__(self, config_model, *args, **kwargs):
+    def __init__(self, config_model, device, *args, **kwargs):
         super(VAE_NF_Detector, self).__init__()
         image_size = config_model.image_size
         in_channels = config_model.in_channels
@@ -74,8 +74,8 @@ class VAE_NF_Detector(nn.Module):
             ]
         else:
             raise NotImplementedError()
-        prior = torch.distributions.MultivariateNormal(torch.zeros(n_bottleneck),
-                                                       torch.eye(n_bottleneck))
+        prior = torch.distributions.MultivariateNormal(torch.zeros(n_bottleneck, device=device),
+                                                       torch.eye(n_bottleneck, device=device))
         encoder_cnns = []
         cur_size = image_size
         for arg in cnn_params:
@@ -107,7 +107,7 @@ class VAE_NF_Detector(nn.Module):
         elif flow_type == 'Radial':
             flows = [nf.flows.Radial((n_bottleneck,)) for k in range(n_flows)]
         elif flow_type == 'RealNVP':
-            b = torch.tensor(n_bottleneck // 2 * [0, 1] + n_bottleneck % 2 * [0])
+            b = torch.tensor(n_bottleneck // 2 * [0, 1] + n_bottleneck % 2 * [0], device=device)
             flows = []
             for i in range(n_flows):
                 s = nf.nets.MLP([n_bottleneck, n_bottleneck])
