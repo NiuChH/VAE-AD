@@ -11,7 +11,7 @@ from models.VT_AE.VT_AE import VT_AE
 
 class VT_AE_Detector(nn.Module):
 
-    def __init__(self, config_model, train=True):
+    def __init__(self, config_model, train=True, *arg, **kwargs):
         super(VT_AE_Detector, self).__init__()
         self.vt_ae = VT_AE(train=train, **config_model.vt_ae)
         self.gmm = mdn1.MDN(**config_model.mdn)
