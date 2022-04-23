@@ -152,12 +152,13 @@ class VAE_NF_Detector(nn.Module):
             'z': z.mean(dim=1)
         })
         self.loss_cache.update({
-            'mean_log_q': mean_log_q, 'mean_log_p': mean_log_p, 'loss': loss
+            'mean_log_q': mean_log_q, 'mean_log_p': mean_log_p, 'loss': loss,
+            'score': log_p.mean(dim=1)  # mean over all samples
         })
         return loss
 
     def get_ano_score(self):
-        return self.loss_cache.nll.detach().cpu().numpy()
+        return self.loss_cache.score.detach().cpu().numpy()
 
     def get_ano_loc_score(self):
-        return self.result_cache.nll_pixel.detach().cpu().numpy()
+        pass
