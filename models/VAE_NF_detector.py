@@ -119,7 +119,7 @@ class VAE_NF_Detector(nn.Module):
                     flows += [nf.flows.MaskedAffineFlow(1 - b, t, s)]
         else:
             raise NotImplementedError
-        self.flows = flows
+        self.flows = nn.ModuleList(flows)
 
         # self.nfm = nf.NormalizingFlowVAE(prior, encoder, flows, decoder)
 
