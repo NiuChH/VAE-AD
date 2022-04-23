@@ -177,7 +177,7 @@ class VAE_NF_Detector(nn.Module):
         mu_x = mu_x.view(-1, num_samples, *mu_x.size()[1:])
         logvar_x = mean_std[:, n_hidden:(2 * n_hidden), ...]
         logvar_x = logvar_x.view(-1, num_samples, *logvar_x.size()[1:])
-        log_p_x_given_z = - 0.5 * torch.prod(torch.tensor(x.size()[1:])) * np.log(2 * np.pi) \
+        log_p_x_given_z = - 0.5 * x.size(2) * np.log(2 * np.pi) \
             - 0.5 * torch.sum(logvar_x + (x.unsqueeze(1) - mu_x) ** 2 / logvar_x.exp(), dim=2)
         # [batch_size, num_samples, W, H]
 
@@ -188,7 +188,8 @@ class VAE_NF_Detector(nn.Module):
         mean_log_q = torch.mean(log_q)  # mean over [batch_size*num_samples,]
         mean_log_p = torch.mean(log_p)  # mean over [batch_size*num_samples,]
 
-        mean_log_p_x_given_z = torch.sum(log_p_x_given_z) / log_p_x_given_z.shape[0] * log_p_x_given_z.shape[1]
+        mean_log_p_x_given_z = torch.sum(log_p_x_given_z) / log_p_x_given_z.shape[0] / log_p_x_given_z.shape[1]
+        # mean_log_p_x_given_z = log_p_x_given_z.mean()
         # mean over [batch_size, num_samples]
         # sum over [W, H]
         kl_qp = (mean_log_q - mean_log_p)
