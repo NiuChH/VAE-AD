@@ -139,13 +139,12 @@ class VAE_NF_Detector(nn.Module):
 
     def write_reconstructions(self, writer, epoch):
         mu_x = self.result_cache.mu_x
-        # logvar_x = self.result_cache.logvar_x
-        # reconstructions = sample_gaussian(mu_x, logvar_x)
-        # writer.add_image(
-        #     'Reconstructed Sample',
-        #     torchvision.utils.make_grid(reconstructions.clamp(0., 1.)),
-        #     epoch, dataformats='CHW')
-        print('mu_x:', mu_x.shape, mu_x)
+        logvar_x = self.result_cache.logvar_x
+        reconstructions = sample_gaussian(mu_x, logvar_x)
+        writer.add_image(
+            'Reconstructed Sample',
+            torchvision.utils.make_grid(reconstructions.clamp(0., 1.)),
+            epoch, dataformats='CHW')
         writer.add_image(
             'Mean',
             torchvision.utils.make_grid(mu_x.clamp(0., 1.)),
@@ -177,10 +176,9 @@ class VAE_NF_Detector(nn.Module):
         mu_x = mean_std[:, :n_hidden, ...]
         mu_x = mu_x.view(-1, num_samples, *mu_x.size()[1:])
         logvar_x = mean_std[:, n_hidden:(2 * n_hidden), ...]
-        var = torch.exp(logvar_x)
-        var = var.view(-1, num_samples, *var.size()[1:])
+        logvar_x = logvar_x.view(-1, num_samples, *logvar_x.size()[1:])
         log_p_x_given_z = - 0.5 * torch.prod(torch.tensor(x.size()[1:])) * np.log(2 * np.pi) \
-            - 0.5 * torch.sum(torch.log(var) + (x.unsqueeze(1) - mu_x) ** 2 / var, dim=2)
+            - 0.5 * torch.sum(logvar_x + (x.unsqueeze(1) - mu_x) ** 2 / logvar_x.exp(), dim=2)
         # [batch_size, num_samples, W, H]
 
         # log_p_x_given_z = self.decoder.log_prob(x, z)  # [batch_size*num_samples, ]
