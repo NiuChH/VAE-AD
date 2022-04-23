@@ -200,7 +200,7 @@ class VAE_NF_Detector(nn.Module):
         })
         self.result_cache.update({
             'nll_pixel': -log_p_x_given_z.detach().cpu(),
-            'mu_x': mu_x.detach().cpu(), 'logvar_x': logvar_x.detach().cpu()
+            'mu_x': mu_x.mean(dim=1).detach().cpu(), 'logvar_x': logvar_x.mean(dim=1).detach().cpu()
         })
         return loss
 
