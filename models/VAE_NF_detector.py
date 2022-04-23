@@ -158,7 +158,7 @@ class VAE_NF_Detector(nn.Module):
         return loss
 
     def get_ano_score(self):
-        return self.loss_cache.mean_log_p.detach().cpu().numpy()
+        return -self.loss_cache.mean_log_p.detach().cpu().numpy()
 
     def get_ano_loc_score(self):
         pass
