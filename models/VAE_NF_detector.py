@@ -120,10 +120,8 @@ class VAE_NF_Detector(nn.Module):
                 else:
                     flows += [nf.flows.MaskedAffineFlow(1 - b, t, s)]
         else:
-            raise NotImplementedError
+            flows = []
         self.flows = nn.ModuleList(flows)
-
-        # self.nfm = nf.NormalizingFlowVAE(prior, encoder, flows, decoder)
 
         self.result_cache = easydict.EasyDict({
             'mu_x': None, 'logvar_x': None, 'nll_pixel': None
@@ -149,7 +147,6 @@ class VAE_NF_Detector(nn.Module):
             'Mean',
             torchvision.utils.make_grid(mu_x.clamp(0., 1.)),
             epoch, dataformats='CHW')
-
 
     def write_hist(self, writer, epoch):
         # writer.add_histogram('mu_z', self.result_cache.mu_z, epoch)
@@ -181,10 +178,6 @@ class VAE_NF_Detector(nn.Module):
             - 0.5 * (logvar_x + (x.unsqueeze(1) - mu_x) ** 2 / logvar_x.exp())
         # [batch_size, num_samples, num_channels, W, H]
 
-        # log_p_x_given_z = self.decoder.log_prob(x, z)  # [batch_size*num_samples, ]
-        # Separate batch and sample dimension again
-        # z = z.view(-1, num_samples, *z.size()[1:])
-
         mean_log_q = torch.mean(log_q)  # mean over [batch_size*num_samples,]
         mean_log_p = torch.mean(log_p)  # mean over [batch_size*num_samples,]
 
@@ -192,6 +185,7 @@ class VAE_NF_Detector(nn.Module):
         # mean_log_p_x_given_z = log_p_x_given_z.mean()
         # mean over [batch_size, num_samples]
         # sum over [W, H]
+
         kl_qp = (mean_log_q - mean_log_p)
         nll = - mean_log_p_x_given_z
         loss = nll + kl_qp

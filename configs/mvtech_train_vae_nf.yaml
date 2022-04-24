@@ -15,7 +15,7 @@ model:
   emb_dim: 64
   x_emb_dim: 64
   num_samples: 4
-  flow_type: RealNVP
+  flow_type: Planar
   n_flows: 20
 
 logger_name: AD-logger
@@ -30,6 +30,7 @@ dataset:
   use_cache: !!bool False
   cache_dir: "datasets/processed"
   patch_size: 64
+  train_size_ratio: 1
 
 train:
   epochs: 100

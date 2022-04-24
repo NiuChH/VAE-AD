@@ -30,7 +30,7 @@ def fit(config, data, model, optimizer, scheduler, writer):
             dl = tqdm(data.train_loader)
         else:
             dl = data.train_loader
-        for x_batch, _ in data.train_loader:
+        for x_batch, _ in dl:
             x_batch = x_batch.to(dev)
             model.zero_grad()
             loss = model.forward(x_batch)

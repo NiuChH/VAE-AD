@@ -212,7 +212,8 @@ class Mvtec:
                     pickle.dump(train_normal, open(train_cache_path, 'wb'))
 
             print(f' --Size of {self.product} train loader: {train_normal_image.size()}--')
-
+            if ds_config.train_size_ratio < 1:
+                train_normal = train_normal[:round(len(train_normal)*ds_config.train_size_ratio)]
             self.train_loader = torch.utils.data.DataLoader(train_normal, batch_size=batch_size, shuffle=True)
 
         if ds_config.load_test:
