@@ -177,9 +177,9 @@ class VAE_NF_Detector(nn.Module):
         mu_x = mu_x.view(-1, num_samples, *mu_x.size()[1:])
         logvar_x = mean_std[:, n_hidden:(2 * n_hidden), ...]
         logvar_x = logvar_x.view(-1, num_samples, *logvar_x.size()[1:])
-        log_p_x_given_z = - 0.5 * x.size(2) * np.log(2 * np.pi) \
-            - 0.5 * torch.sum(logvar_x + (x.unsqueeze(1) - mu_x) ** 2 / logvar_x.exp(), dim=2)
-        # [batch_size, num_samples, W, H]
+        log_p_x_given_z = - 0.5 * np.log(2 * np.pi) \
+            - 0.5 * (logvar_x + (x.unsqueeze(1) - mu_x) ** 2 / logvar_x.exp())
+        # [batch_size, num_samples, num_channels, W, H]
 
         # log_p_x_given_z = self.decoder.log_prob(x, z)  # [batch_size*num_samples, ]
         # Separate batch and sample dimension again
