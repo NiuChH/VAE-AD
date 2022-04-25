@@ -163,10 +163,17 @@ class VAE_NF_Detector(nn.Module):
         log_q = log_q.view(-1, *log_q.size()[2:])
         # size: [batch_size*num_samples,]
 
+        log_p = 0.
         for flow in self.flows:
             z, log_det = flow(z)
-            log_q -= log_det
-        log_p = self.prior.log_prob(z)  # [batch_size*num_samples]
+            log_p += log_det
+        log_p += self.prior.log_prob(z)  # [batch_size*num_samples]
+        #
+        # log_p = 0.
+        # for flow in self.flows:
+        #     z, log_det = flow.inverse(z)
+        #     log_p += log_det
+        # log_p += self.prior.log_prob(z)  # [batch_size*num_samples]
 
         mean_std = self.decoder.net(z)
         n_hidden = mean_std.size()[1] // 2

@@ -60,19 +60,24 @@ def plot(image, grnd_truth, score):
     image = image[0]
     if image.shape[0] == 1:
         image = image[0]
+        plt.imshow(image, cmap='gray')
+        plt.axis(False)
     else:
         image = image.permute(1, 2, 0)
-    plt.imshow(image)
+        plt.imshow(image)
+        plt.axis(False)
     plt.subplot(132)
     plt.imshow(grnd_truth.squeeze(0).squeeze(0))
     plt.xlabel('ground truth')
     plt.subplot(133)
-    plt.imshow(score)
+    im = plt.imshow(score)
+    plt.axis(False)
     plt.xlabel('predicted')
     # plt.title('Anomaly score')
     # plt.imshow(score[0].permute(1,2,0), cmap='Reds')
-    plt.colorbar()
-    plt.pause(1)
+    plt.colorbar(im, fraction=0.046 * score.shape[0] / score.shape[1], pad=0.04)
+    plt.tight_layout()
+    # plt.pause(1)
     plt.show()
 
 
