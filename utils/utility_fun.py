@@ -61,13 +61,13 @@ def plot(image, grnd_truth, score):
     if image.shape[0] == 1:
         image = image[0]
         plt.imshow(image, cmap='gray')
-        plt.axis(False)
     else:
         image = image.permute(1, 2, 0)
         plt.imshow(image)
-        plt.axis(False)
+    plt.axis(False)
     plt.subplot(132)
     plt.imshow(grnd_truth.squeeze(0).squeeze(0))
+    plt.axis(False)
     plt.xlabel('ground truth')
     plt.subplot(133)
     im = plt.imshow(score)
