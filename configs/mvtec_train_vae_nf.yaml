@@ -16,7 +16,7 @@ model:
   x_emb_dim: 64
   num_samples: 4
   flow_type: Planar
-  n_flows: 20
+  n_flows: 40
 
 logger_name: AD-logger
 

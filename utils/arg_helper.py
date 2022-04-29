@@ -26,6 +26,8 @@ def parse_arguments(default_config="configs/train.yaml"):
         type=str,
         default='INFO',
         help="Logging Level, one of: DEBUG, INFO, WARNING, ERROR, CRITICAL")
+    parser.add_argument("-t", "--testing", action="store_true",
+                        help="testing a model")
     parser.add_argument('-m', '--comment', type=str,
                         default="", help="A single line comment for the experiment")
     args = parser.parse_args()
