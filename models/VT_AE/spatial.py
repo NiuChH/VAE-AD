@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Reference: https://github.com/pankajmishra000/VT-ADL
+
 Created on Thu Oct 15 15:40:29 2020
 
 @author: Pankaj Mishra
@@ -8,38 +10,6 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-
-
-# class Unity(nn.Module):
-#     def __init__(self, ks, in_ch=512):
-#         super(Unity, self).__init__()
-#
-#         self.conv = nn.Conv2d(in_channels=in_ch, out_channels=512, kernel_size=ks)
-#
-#     def forward(self, x):
-#         return F.relu(self.conv(x), inplace=True)
-
-
-# class Spatial_Scorer(nn.Module):
-#     def __init__(self, in_dim=512, test=False):
-#         super(Spatial_Scorer, self).__init__()
-#         self.test = test
-#
-#         self.layers = nn.Sequential(nn.Linear(in_dim, 256),
-#                                     nn.ReLU(True),
-#                                     nn.Linear(256, 128),
-#                                     nn.ReLU(True),
-#                                     nn.Linear(128, 1),
-#                                     nn.Tanh())
-#         if not self.test:
-#             print("Initializing Spatial socrer network.........")
-#             initialize_weights(self.layers)
-#
-#     def forward(self, x):
-#         x = x.view(x.size(0), -1)
-#         F = self.layers(x)
-#         return F
-
 
 # Initialize weight function
 def initialize_weights(*models):
@@ -110,15 +80,3 @@ class DigitCaps(nn.Module):
         #        t = self.upsample(t)
 
         return t, outputs
-
-# if __name__ == "__main__":
-#     from torchsummary import summary
-#
-#     mod = Unity(16)
-#     print(mod)
-#     summary(mod, input_size=(512, 16, 16))
-#
-#     model = Spatial_Scorer()
-#     x = torch.rand((225, 512))
-#     # print(model(x))
-#     summary(model, (1, 512), batch_size=225)

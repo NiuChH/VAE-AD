@@ -1,6 +1,5 @@
 # VAE image anomaly detection
 
-----
 
 This is the implementation of the VAE and AE part of the course project in CMU 10-708.
 
@@ -46,3 +45,4 @@ To test a model:
 	```
    python3 -t -c config/mvtec_test.yaml  
 	```
+

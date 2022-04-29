@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Reference: https://github.com/pankajmishra000/VT-ADL
+
 Created on Thu Oct 15 10:05:43 2020
 
 @author: riccardo
