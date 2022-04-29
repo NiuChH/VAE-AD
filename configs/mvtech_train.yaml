@@ -39,6 +39,7 @@ dataset:
   use_cache: !!bool False
   cache_dir: "datasets/processed"
   patch_size: 64
+  train_size_ratio: 1
 
 train:
   epochs: 100

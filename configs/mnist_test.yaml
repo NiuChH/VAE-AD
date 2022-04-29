@@ -27,7 +27,7 @@ test:
   do_pro: !!bool False
 
 train:
-  epochs: 5
+  epochs: 100
   save_all_models: !!bool False
   lr_dacey: 0.95
   optim:
